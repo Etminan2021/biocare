@@ -1,1 +1,72 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>مختبرات بيوكير الطبية</title><style>body{margin:0;background:#f3f8f5;font:16px system-ui;color:#164633}header{background:#146747;color:white;padding:22px}nav{display:flex;gap:8px;overflow:auto;background:white;padding:12px}button{background:#176c4d;color:white;border:0;border-radius:9px;padding:11px;cursor:pointer}main{max-width:1000px;margin:25px auto;padding:15px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.card{background:white;padding:20px;border-radius:14px;margin:10px 0;box-shadow:0 2px 8px #ddd}.price{font-size:23px;color:#14734e;font-weight:bold}input,select{padding:12px;width:100%;box-sizing:border-box;margin:8px 0 15px;border:1px solid #bbb;border-radius:8px}.warning{background:#fff3d5;padding:14px;border-radius:10px}footer{text-align:center;padding:25px;color:#667}</style></head><body><header><h1>✚ مختبرات بيوكير الطبية</h1><div>Biocare Medical Laboratories | نسخة تجريبية</div></header><nav><button onclick="show('home')">الرئيسية</button><button onclick="show('tests')">التحاليل</button><button onclick="show('packages')">الباقات</button><button onclick="show('booking')">الحجز</button><button onclick="show('results')">النتائج</button><button onclick="show('admin')">الإدارة</button></nav><main id="app"></main><footer>نسخة تجريبية غير مخصصة لبيانات المرضى الحقيقية</footer><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#176C4D">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Biocare">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <title>مختبرات بيوكير الطبية | Biocare</title>
+  <style>
+    :root{--green:#176c4d;--green2:#0f4f3b;--bg:#f5f8f6;--card:#fff;--text:#153d31;--muted:#708178;--line:#e3ece7;--warn:#fff5de;--danger:#a43c3c}
+    *{box-sizing:border-box}
+    html{background:var(--bg)}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"SF Arabic","Segoe UI",Arial,sans-serif;padding-bottom:84px}
+    button,input,select{font:inherit}
+    button{cursor:pointer}
+    .topbar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top)) 16px 10px}
+    .toprow{max-width:1100px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{display:flex;align-items:center;gap:10px;min-width:0}.brand img{width:42px;height:42px;border-radius:12px}.brand strong{display:block;font-size:17px}.brand small{display:block;color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .lang{background:#eaf3ee;color:var(--green);border:0;border-radius:999px;padding:9px 12px;font-weight:700}
+    main{max-width:1100px;margin:auto;padding:18px 16px 24px}
+    .hero{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;border-radius:26px;padding:28px 22px;box-shadow:0 16px 40px rgba(12,71,51,.18);overflow:hidden;position:relative}
+    .hero:after{content:"+";position:absolute;left:18px;bottom:-36px;font-size:170px;opacity:.07;font-weight:900;line-height:1}
+    .hero h1{font-size:clamp(28px,8vw,46px);line-height:1.25;margin:0 0 12px}.hero p{margin:0 0 20px;line-height:1.9;max-width:680px}
+    .primary,.ghost{border:0;border-radius:14px;padding:12px 16px;font-weight:800}.primary{background:var(--green);color:#fff}.hero .primary{background:#fff;color:var(--green)}.ghost{background:#eaf3ee;color:var(--green)}
+    .section-title{font-size:24px;margin:30px 0 13px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:13px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 8px 20px rgba(34,75,58,.06)}
+    .service{min-height:145px}.icon{font-size:28px}.card h3{margin:9px 0 5px}.muted{color:var(--muted);line-height:1.7}.price{font-size:25px;font-weight:900;color:var(--green)}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.chip{display:inline-block;background:#eaf3ee;color:var(--green);border-radius:999px;padding:5px 9px;font-size:12px;font-weight:800}
+    .search{width:100%;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 15px;margin-bottom:14px;outline:none}.search:focus,input:focus,select:focus{border-color:#7bb59f;box-shadow:0 0 0 3px rgba(23,108,77,.10)}
+    label{display:block;font-weight:800;margin-top:12px}input,select{width:100%;padding:13px 14px;border:1px solid #cbdad2;border-radius:13px;background:#fff;margin-top:7px}
+    .notice{background:var(--warn);border:1px solid #f0dfb4;padding:13px 14px;border-radius:15px;line-height:1.7;margin-bottom:14px}.success{background:#e8f6ed;color:#155c3e;border-radius:14px;padding:13px;margin-top:12px}
+    .branch{display:flex;gap:10px;align-items:center}.branch span:first-child{font-size:22px}
+    .bottomnav{position:fixed;bottom:0;left:0;right:0;z-index:30;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-top:1px solid var(--line)}
+    .bottomnav-inner{max-width:720px;margin:auto;display:grid;grid-template-columns:repeat(5,1fr);gap:4px}.navbtn{border:0;background:transparent;border-radius:13px;padding:7px 3px;color:#66776e;font-size:11px}.navbtn b{display:block;font-size:20px;line-height:1.2}.navbtn.active{background:#eaf3ee;color:var(--green);font-weight:900}
+    .install{display:none;position:fixed;left:14px;right:14px;bottom:88px;background:#153d31;color:white;padding:14px;border-radius:18px;z-index:40;box-shadow:0 12px 30px #0003}.install .row{align-items:flex-start}.install button{border:0;border-radius:10px;padding:8px 10px}
+    .admin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{text-align:center}.stat strong{font-size:25px;display:block}
+    @media(min-width:760px){body{padding-bottom:20px}.bottomnav{position:sticky;bottom:auto;top:73px}.bottomnav-inner{max-width:1100px;grid-template-columns:repeat(6,max-content);justify-content:center}.navbtn{font-size:13px;padding:8px 16px}.navbtn b{display:none}.install{max-width:520px;margin:auto}}
+  </style>
+</head>
+<body>
+<header class="topbar">
+  <div class="toprow">
+    <div class="brand"><img src="icon-192.png" alt=""><div><strong id="brandName">مختبرات بيوكير الطبية</strong><small>Biocare Medical Laboratories</small></div></div>
+    <button class="lang" id="langBtn">EN</button>
+  </div>
+</header>
+
+<nav class="bottomnav">
+ <div class="bottomnav-inner">
+  <button class="navbtn active" data-view="home"><b>⌂</b><span data-i18n="navHome">الرئيسية</span></button>
+  <button class="navbtn" data-view="tests"><b>⌕</b><span data-i18n="navTests">التحاليل</span></button>
+  <button class="navbtn" data-view="packages"><b>♡</b><span data-i18n="navPackages">الباقات</span></button>
+  <button class="navbtn" data-view="booking"><b>▣</b><span data-i18n="navBooking">الحجز</span></button>
+  <button class="navbtn" data-view="results"><b>▤</b><span data-i18n="navResults">النتائج</span></button>
+ </div>
+</nav>
+
+<main id="app"></main>
+
+<div class="install" id="installTip">
+  <div class="row"><div><strong>ثبّت بيوكير على الآيفون</strong><div style="font-size:13px;margin-top:4px">في Safari: مشاركة ← إضافة إلى الشاشة الرئيسية</div></div><button id="closeInstall">إغلاق</button></div>
+</div>
+
+<script src="app.js"></script>
+<script>
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+</script>
+</body></html>

@@ -1,7 +1,20 @@
-# Biocare Medical Laboratories — Demo
+# Biocare Medical Laboratories — PWA Demo v2
 
-Open index.html in a browser or upload this folder to a static web host.
+Mobile-first Arabic/English proof of concept for GitHub Pages.
 
-Includes responsive Arabic interface, test catalog, package catalog, five branch listings, demo bookings saved in browser localStorage, results placeholder and demo admin summary.
+## Included
+- Installable Progressive Web App behavior
+- iPhone home-screen support
+- Offline caching of the static shell
+- Arabic/English toggle
+- Tests, packages, five branches
+- Local demo booking flow
+- Results placeholder
+- App icons and manifest
 
-IMPORTANT: This is a static proof of concept, not a medical production application. Do not use real patient data. There is no login, server, secure data storage, clinical validation, payments, SMS, LIS integration, or results access. Prices and branch details must be reviewed before public use. English localization and VAT calculations are not implemented.
+## Important
+This remains a static demo, not a production medical application.
+Do not enter real patient data. It has no secure authentication, backend, authorization, encrypted clinical storage, LIS connection, real booking confirmation, payments, SMS, or production results workflow.
+
+## GitHub Pages
+Upload all files to the repository root. GitHub Pages can continue to deploy from `main` / `(root)`.
