@@ -1,26 +1,16 @@
-# Biocare Medical Laboratories — Final Demo Build
+# Biocare Medical Laboratories — V4 Catalog Build
 
-Uses the exact Biocare logo supplied by the user:
-- Green B symbol with red blood drop
-- Arabic: مختبرات بيوكير الطبية
-- English: BIOCARE MEDICAL LABORATORIES
+هذه النسخة تجمع واجهة بيوكير المعتمدة مع كتالوج التحاليل والباقات.
 
-## Included
-- Home interface matching the approved mobile direction
-- White side drawer (not red)
-- Test categories, packages/offers, branches
-- Booking + rescheduling/cancellation demo
-- Results demo + print/save PDF
-- Customer profile + family members
-- Medical consultations demo
-- Chat demo
-- Consultation appointments
-- Prescription demo
-- Prescription refill requests
-- Notifications, preferences, language, privacy/help, about, testimonials, jobs, blogs
-- Separate admin demo page
-- PWA install support with Biocare icon and splash screen
+## المحتوى
+- شعار بيوكير الصحيح كما زوده المستخدم.
+- 100 باقة مع السعر، عدد التحاليل، الصيام، التصنيف، والوصف.
+- مكونات 83 باقة مستخرجة من ملف العروض؛ الباقات التي لا توجد مكوناتها في المرجع تظهر بوضوح كمحتوى يحتاج اعتمادًا بدل اختلاق مكونات.
+- 745 اسم تحليل/خدمة للبحث، منها 105 بأسعار بيوكير المؤكدة في قاعدة التطبيق؛ بقية الأسماء المرجعية لا تعرض سعر منافس على أنه سعر بيوكير.
+- تصميم بطاقة/صورة مستقلة مولدة داخل التطبيق لكل باقة، تحمل اسمها وسعرها وعدد التحاليل وحالة الصيام.
+- السلة والحجز والنتائج التجريبية والحساب وأفراد العائلة.
+- الاستشارات والمحادثة والوصفات وطلب إعادة الصرف (تجريبي فقط).
+- PWA قابل للتثبيت على iPhone/Android.
 
-## Safety
-This is still a front-end demo. Do not enter real patient data.
-Real clinical consultations/prescriptions require secure backend, verified clinician identity/authorization, audit logs, privacy/security review, and appropriate regulated e-prescribing integration before live use.
+## مهم
+هذه واجهة تجريبية وليست نظامًا طبيًا إنتاجيًا. لا تستخدم بيانات مرضى حقيقية، ولا تعتمد الاستشارات أو الوصفات الفعلية قبل ربط Backend آمن والتحقق من التراخيص والتكاملات التنظيمية المطلوبة.
