@@ -1,11 +1,11 @@
 {
-  "name": "مختبرات بيوكير الطبية | Biocare Medical Laboratories",
+  "name": "مختبرات بيوكير الطبية | BIOCARE MEDICAL LABORATORIES",
   "short_name": "Biocare",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#F5F8F6",
-  "theme_color": "#176C4D",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "lang": "ar",
   "dir": "rtl",
   "icons": [

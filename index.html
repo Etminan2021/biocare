@@ -1,10 +1,9 @@
-
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#176C4D">
+<meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Biocare">
@@ -14,29 +13,47 @@
 <title>مختبرات بيوكير الطبية | Biocare</title>
 </head>
 <body>
-<header class="topbar">
-  <div class="toprow">
-    <div class="brand"><img src="icon-192.png" alt=""><div><strong id="brandName">مختبرات بيوكير الطبية</strong><small>Biocare Medical Laboratories</small></div></div>
-    <div class="head-actions"><button class="pill" id="notifyBtn">🔔</button><button class="pill" id="langBtn">EN</button></div>
-  </div>
-</header>
+<div id="splash" class="splash">
+  <img src="logo-full.png" alt="Biocare">
+</div>
 
-<nav class="bottomnav">
-  <div class="bottomnav-inner">
-    <button class="navbtn active" data-view="home"><b>⌂</b><span>الرئيسية</span></button>
-    <button class="navbtn" data-view="tests"><b>⌕</b><span>التحاليل</span></button>
-    <button class="navbtn" data-view="booking"><b>▣</b><span>الحجز</span></button>
-    <button class="navbtn" data-view="results"><b>▤</b><span>النتائج</span></button>
-    <button class="navbtn" data-view="more"><b>⋯</b><span>المزيد</span></button>
+<header class="app-header">
+  <div class="header-actions">
+    <button class="icon-btn" id="notifyBtn" aria-label="الإشعارات">🔔<span class="dot"></span></button>
+    <button class="icon-btn" id="cartBtn" aria-label="السلة">🛒</button>
   </div>
-</nav>
+  <img class="header-logo" src="logo-full.png" alt="مختبرات بيوكير الطبية">
+  <button class="menu-btn" id="menuBtn" aria-label="القائمة">☰</button>
+</header>
 
 <main id="app"></main>
 
-<div class="modal hidden" id="modal"><div class="sheet"><button class="textbtn modal-close" id="closeModal">إغلاق ✕</button><div id="modalContent"></div></div></div>
+<nav class="bottom-nav">
+  <button data-view="home" class="nav-item active"><span>⌂</span><b>الرئيسية</b></button>
+  <button data-view="packages" class="nav-item"><span>🎁</span><b>الباقات</b></button>
+  <button data-view="booking" class="nav-item booking-fab"><span>📅</span></button>
+  <button data-view="results" class="nav-item"><span>▤</span><b>النتائج</b></button>
+  <button data-view="profile" class="nav-item"><span>👤</span><b>حسابي</b></button>
+</nav>
 
-<div class="install" id="installTip"><div class="row"><div><strong>ثبّت بيوكير على الآيفون</strong><div style="font-size:13px;margin-top:4px">Safari ← مشاركة ← إضافة إلى الشاشة الرئيسية</div></div><button id="closeInstall">إغلاق</button></div></div>
+<div class="drawer-backdrop hidden" id="drawerBackdrop"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-head">
+    <img src="logo-full.png" alt="Biocare">
+    <button id="drawerClose">✕</button>
+  </div>
+  <div class="drawer-scroll" id="drawerMenu"></div>
+</aside>
+
+<div class="modal hidden" id="modal">
+ <div class="sheet">
+  <button id="modalClose" class="sheet-close">✕</button>
+  <div id="modalBody"></div>
+ </div>
+</div>
 
 <script src="app.js"></script>
-<script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}</script>
+<script>
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+</script>
 </body></html>

@@ -1,25 +1,26 @@
-# Biocare Medical Laboratories — V3 Demo
+# Biocare Medical Laboratories — Final Demo Build
 
-Mobile-first bilingual PWA demo for GitHub Pages.
+Uses the exact Biocare logo supplied by the user:
+- Green B symbol with red blood drop
+- Arabic: مختبرات بيوكير الطبية
+- English: BIOCARE MEDICAL LABORATORIES
 
-## V3 additions
-- Demo customer sign-in with local-only demo OTP `1234`
-- Family members management
-- Booking for self/family
-- Appointment list
-- Reschedule and cancel demo appointments
-- Results page with approved/pending demo reports
-- Print / Save as PDF demo report flow
-- In-app notifications
-- Profile and logout
-- Support placeholder
-- Separate `admin.html` demo dashboard
-- Arabic/English toggle
-- PWA install support and offline app shell
+## Included
+- Home interface matching the approved mobile direction
+- White side drawer (not red)
+- Test categories, packages/offers, branches
+- Booking + rescheduling/cancellation demo
+- Results demo + print/save PDF
+- Customer profile + family members
+- Medical consultations demo
+- Chat demo
+- Consultation appointments
+- Prescription demo
+- Prescription refill requests
+- Notifications, preferences, language, privacy/help, about, testimonials, jobs, blogs
+- Separate admin demo page
+- PWA install support with Biocare icon and splash screen
 
-## Important safety note
-This is still a static proof of concept, not a production medical application.
-Do not enter real patient data.
-There is no secure identity provider, protected backend, authorization layer, encrypted clinical database, real LIS integration, payment gateway, SMS/WhatsApp integration, or production-grade audit trail.
-
-For production use, these must be implemented and reviewed for applicable privacy/security and healthcare requirements before real patient data is processed.
+## Safety
+This is still a front-end demo. Do not enter real patient data.
+Real clinical consultations/prescriptions require secure backend, verified clinician identity/authorization, audit logs, privacy/security review, and appropriate regulated e-prescribing integration before live use.
