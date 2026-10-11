@@ -79,10 +79,42 @@ function iconSvg(kind){
   virus:`<svg ${common}><circle cx="32" cy="32" r="13" fill="none" stroke="currentColor" stroke-width="4"/><path d="M32 7v9M32 48v9M7 32h9M48 32h9M14 14l7 7M43 43l7 7M50 14l-7 7M21 43l-7 7" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`,
   urine:`<svg ${common}><path d="M18 17h28l-4 38H22l-4-38Z" fill="none" stroke="currentColor" stroke-width="4"/><path d="M16 17h32M24 10h16" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`,
   liver:`<svg ${common}><path d="M10 30c7-14 27-20 44-9-3 23-13 31-29 31-8 0-13-7-15-22Z" fill="none" stroke="currentColor" stroke-width="4"/><path d="M36 20c-2 11 1 21 10 28" fill="none" stroke="currentColor" stroke-width="3"/></svg>`,
-  kidney:`<svg ${common}><path d="M25 12c-10 2-14 11-13 21 1 10 7 17 14 17 7 0 7-7 7-14V20c0-5-3-9-8-8ZM39 12c10 2 14 11 13 21-1 10-7 17-14 17-7 0-7-7-7-14V20c0-5 3-9 8-8Z" fill="none" stroke="currentColor" stroke-width="4"/></svg>`
+  kidney:`<svg ${common}><path d="M25 12c-10 2-14 11-13 21 1 10 7 17 14 17 7 0 7-7 7-14V20c0-5-3-9-8-8ZM39 12c10 2 14 11 13 21-1 10-7 17-14 17-7 0-7-7-7-14V20c0-5 3-9 8-8Z" fill="none" stroke="currentColor" stroke-width="4"/></svg>`,
+  stomach:`<svg ${common}><path d="M26 9v18c0 4-2 7-6 10-5 4-6 12-2 17 4 6 14 5 20 1 9-6 12-18 5-26-4-5-9-7-17-7" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  heart:`<svg ${common}><path d="M32 54 12 35C2 24 9 10 21 10c5 0 9 2 11 7 2-5 6-7 11-7 12 0 19 14 9 25L32 54Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/></svg>`,
+  brain:`<svg ${common}><path d="M24 13c-8 0-12 6-10 12-6 3-7 12-1 16-1 7 6 12 12 9 3 5 11 5 14 0 7 3 14-3 12-10 6-4 5-13-1-16 2-7-3-13-10-12-3-5-12-5-16 1Z" fill="none" stroke="currentColor" stroke-width="3.5"/><path d="M32 15v34M22 24c5 0 7 3 7 7M42 25c-5 0-7 3-7 7M23 40c5 0 7-3 7-7M41 41c-5 0-7-3-7-7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`,
+  thyroid:`<svg ${common}><path d="M19 18c8 0 11 6 13 12 2-6 5-12 13-12 5 0 8 5 7 10-2 8-9 11-14 11H26c-5 0-12-3-14-11-1-5 2-10 7-10Z" fill="none" stroke="currentColor" stroke-width="4"/><path d="M32 30v21" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`,
+  child:`<svg ${common}><circle cx="32" cy="22" r="10" fill="none" stroke="currentColor" stroke-width="4"/><path d="M16 54c2-12 9-18 16-18s14 6 16 18M22 16c2-6 6-9 10-9 5 0 8 3 10 8" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`,
+  hair:`<svg ${common}><path d="M13 49c2-18 8-34 19-39 11 5 17 21 19 39M20 50c2-14 6-26 12-32M32 18c6 6 10 18 12 32M26 50c1-10 3-20 6-27M38 50c-1-10-3-20-6-27" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></svg>`,
+  fertility:`<svg ${common}><circle cx="24" cy="25" r="10" fill="none" stroke="currentColor" stroke-width="4"/><path d="M31 32 48 49M40 49h8v-8M40 16h12M46 10v12" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`,
+  muscle:`<svg ${common}><path d="M18 46c8 8 25 7 32-3 5-8 1-18-8-19-3 8-8 11-14 9l-4-8-8 8c-4 4-4 9 2 13Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/></svg>`,
+  bone:`<svg ${common}><path d="M18 20a7 7 0 1 1 10-10l18 18a7 7 0 1 1 8 8 7 7 0 1 1-10 10L26 28a7 7 0 1 1-8-8Z" fill="none" stroke="currentColor" stroke-width="4"/></svg>`
  };
  return m[kind]||m.blood;
 }
+
+
+function packageIconKind(p){
+ const n=`${p?.name||''} ${p?.category||''}`;
+ if(/معدة|هضم|جرثومة/.test(n)) return 'stomach';
+ if(/سكري|سكر|تنحيف|سمنة|وزن/.test(n)) return 'sugar';
+ if(/قلب|دهون|كوليسترول|ضغط/.test(n)) return 'heart';
+ if(/ذاكرة|تركيز|أرق|اكتئاب|أعصاب/.test(n)) return 'brain';
+ if(/درقية|غدة/.test(n)) return 'thyroid';
+ if(/أطفال|طفل|بلوغ/.test(n)) return 'child';
+ if(/شعر|بشرة|روكتان/.test(n)) return 'hair';
+ if(/خصوبة|حمل|مبايض|رجال|رجل|بروستاتا/.test(n)) return 'fertility';
+ if(/كبد/.test(n)) return 'liver';
+ if(/كلى|كلية/.test(n)) return 'kidney';
+ if(/عضلات|لياقة/.test(n)) return 'muscle';
+ if(/عظام|مفاصل/.test(n)) return 'bone';
+ if(/فيتامين|معادن|حديد|أنيميا|فقر الدم/.test(n)) return 'vit';
+ if(/فيروس|عدوى|معدية/.test(n)) return 'virus';
+ return 'blood';
+}
+function packageIcon(p){return iconSvg(packageIconKind(p))}
+let packageQuickFilter='all';
+window.setPackageFilter=f=>{packageQuickFilter=f;document.querySelectorAll('.quick-filter').forEach(b=>b.classList.toggle('active',b.dataset.filter===f));renderPackageList()}
 
 const ART_THEMES=[
  ['#f6eee0','#a36c1c','#fff8ec'],['#eaf3fb','#175e8a','#f4fbff'],['#eef8f1','#176744','#f6fff9'],
@@ -187,40 +219,52 @@ function renderTestsList(){
 window.goTestsCategory=cat=>{view='tests';render();setTimeout(()=>{const s=document.getElementById('testCategory');if(s){s.value=cat;renderTestsList()}},0);window.scrollTo({top:0,behavior:'smooth'})}
 
 function packageCard(p){
- return `<article class="package-card">
-   <button class="package-image-btn" onclick="showPackage('${p.id}')"><img class="package-art" loading="lazy" src="${packageArtwork(p)}" alt="${esc(p.name)}"></button>
+ const [bg,accent]=themeForCategory(p.category);
+ const fast=String(p.fasting||'').includes('لا يتطلب');
+ return `<article class="package-card compact-package" style="--pack-bg:${bg};--pack-accent:${accent}">
+   <button class="package-icon-wrap" onclick="showPackage('${p.id}')" aria-label="${esc(p.name)}">${packageIcon(p)}</button>
    <div class="package-card-body">
      <span class="chip">${esc(p.category)}</span>
      <h3>${esc(p.name)}</h3>
-     <div class="package-meta"><span>${typeof p.count==='number'?`${p.count} تحليل`:esc(p.count)}</span><span>${String(p.fasting).includes('لا يتطلب')?'لا يتطلب صيام':'يتطلب صيام'}</span></div>
-     <div class="row"><span class="price">${fmtPrice(p.price)}</span><button class="secondary" onclick="showPackage('${p.id}')">التفاصيل</button></div>
+     <div class="package-meta"><span>${typeof p.count==='number'?`${p.count} تحليل`:esc(p.count)}</span><span>${fast?'لا يتطلب صيام':'يتطلب صيام'}</span></div>
+     <div class="package-footer"><span class="package-price">${fmtPrice(p.price)}</span><button class="package-details-btn" onclick="showPackage('${p.id}')">عرض التفاصيل <span>‹</span></button></div>
    </div>
  </article>`;
 }
 function packagesView(){
- return `<section class="section">
- <div class="section-head"><h2 class="under">الباقات والعروض</h2><span class="count-badge">${PACKAGES.length} باقة</span></div>
- <div class="notice compact">كل باقة لها صورة تصميم داخل التطبيق، وتعرض السعر وعدد التحاليل ومتطلبات الصيام. تضاف ضريبة القيمة المضافة للمقيمين.</div>
- <div class="catalog-tools">
-   <input id="packageSearch" placeholder="ابحث عن باقة..." oninput="renderPackageList()">
+ return `<section class="section packages-section">
+ <div class="section-head"><h2 class="under">الباقات</h2><span class="count-badge">${PACKAGES.length} باقة</span></div>
+ <div class="catalog-tools package-search-tools">
+   <input id="packageSearch" placeholder="ابحث عن الباقات أو التحاليل..." oninput="renderPackageList()">
    <select id="packageCategory" onchange="renderPackageList()"><option value="">كل الفئات</option>${(CATALOG.packageCategories||[]).map(c=>`<option>${esc(c)}</option>`).join('')}</select>
  </div>
- <div id="packagesList" class="package-grid"></div>
+ <div class="quick-filters" role="group" aria-label="تصفية سريعة">
+   <button class="quick-filter active" data-filter="all" onclick="setPackageFilter('all')">الكل</button>
+   <button class="quick-filter" data-filter="popular" onclick="setPackageFilter('popular')">الأكثر مبيعًا</button>
+   <button class="quick-filter" data-filter="nofast" onclick="setPackageFilter('nofast')">لا يتطلب صيام</button>
+   <button class="quick-filter" data-filter="fast" onclick="setPackageFilter('fast')">يتطلب صيام</button>
+ </div>
+ <div id="packagesList" class="package-grid compact-package-grid"></div>
  </section>`;
 }
 function renderPackageList(){
  const box=document.getElementById('packagesList'); if(!box) return;
  const q=(document.getElementById('packageSearch')?.value||'').trim().toLowerCase();
  const cat=document.getElementById('packageCategory')?.value||'';
- const filtered=PACKAGES.filter(p=>(!cat||p.category===cat)&&(!q||(`${p.name} ${p.category} ${p.description||''}`).toLowerCase().includes(q)));
+ const filtered=PACKAGES.filter(p=>{
+   const fast=String(p.fasting||'').includes('لا يتطلب');
+   const quick=packageQuickFilter==='all'||(packageQuickFilter==='nofast'&&fast)||(packageQuickFilter==='fast'&&!fast)||(packageQuickFilter==='popular'&&/الأكثر مبيع|الاكثر مبيع/.test(p.name));
+   const query=(`${p.name} ${p.category} ${p.description||''} ${(p.components||[]).join(' ')}`).toLowerCase();
+   return quick&&(!cat||p.category===cat)&&(!q||query.includes(q));
+ });
  box.innerHTML=filtered.map(packageCard).join('') || `<div class="empty">لا توجد باقات مطابقة.</div>`;
 }
 window.showPackage=id=>{
  const p=PACKAGES.find(x=>x.id===id); if(!p) return;
  const comps=p.components||[];
  openModal(`<div class="package-detail">
-   <img class="package-detail-art" src="${packageArtwork(p)}" alt="${esc(p.name)}">
-   <div class="detail-head"><div><span class="chip">${esc(p.category)}</span><h2>${esc(p.name)}</h2></div><span class="detail-price">${fmtPrice(p.price)}</span></div>
+   <div class="package-detail-visual" style="--pack-bg:${themeForCategory(p.category)[0]};--pack-accent:${themeForCategory(p.category)[1]}"><span class="detail-package-icon">${packageIcon(p)}</span><div><span class="chip">${esc(p.category)}</span><h2>${esc(p.name)}</h2></div></div>
+   <div class="detail-head"><span class="detail-price">${fmtPrice(p.price)}</span></div>
    ${p.description?`<p class="muted">${esc(p.description)}</p>`:''}
    <div class="detail-facts"><div><b>${typeof p.count==='number'?p.count:esc(p.count)}</b><span>عدد التحاليل/الأنواع</span></div><div><b>${esc(p.fasting)}</b><span>الصيام</span></div></div>
    <div class="vat-line">تضاف ضريبة القيمة المضافة للمقيمين.</div>

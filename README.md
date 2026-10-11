@@ -14,3 +14,9 @@
 
 ## مهم
 هذه واجهة تجريبية وليست نظامًا طبيًا إنتاجيًا. لا تستخدم بيانات مرضى حقيقية، ولا تعتمد الاستشارات أو الوصفات الفعلية قبل ربط Backend آمن والتحقق من التراخيص والتكاملات التنظيمية المطلوبة.
+
+
+## V5
+- Compact package cards with category-specific medical icons.
+- Search and quick filters for fasting / no fasting / best-selling.
+- Cleaner package details and fixed navigation icons.

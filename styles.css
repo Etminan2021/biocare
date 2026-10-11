@@ -194,3 +194,53 @@ body{background:#fff}
  .featured-packages{grid-auto-columns:86%}
  .hero{grid-template-columns:34% 66%}.hero-copy h1{font-size:22px}.hero-copy p{font-size:12px}
 }
+
+
+/* --- Biocare V5 compact package experience --- */
+.packages-section{padding-top:14px}
+.package-search-tools{margin-bottom:10px}
+.quick-filters{display:flex;gap:8px;overflow-x:auto;padding:0 0 12px;scrollbar-width:none}
+.quick-filters::-webkit-scrollbar{display:none}
+.quick-filter{flex:0 0 auto;border:1px solid #e1e9e5;background:#f6faf8;color:#486158;border-radius:999px;padding:9px 14px;font-size:12px;font-weight:800;white-space:nowrap}
+.quick-filter.active{background:var(--green);border-color:var(--green);color:#fff}
+.compact-package-grid{grid-template-columns:1fr;gap:12px}
+.compact-package{display:grid;grid-template-columns:112px 1fr;align-items:stretch;min-height:166px;padding:0;background:linear-gradient(110deg,var(--pack-bg),#fff 62%);border-color:#e4ebe7;overflow:hidden}
+.package-icon-wrap{border:0;background:transparent;display:grid;place-items:center;padding:18px;min-height:166px;color:var(--pack-accent);position:relative}
+.package-icon-wrap:before{content:"";position:absolute;width:78px;height:78px;border-radius:50%;background:color-mix(in srgb,var(--pack-accent) 10%,white)}
+.package-icon-wrap svg{width:64px;height:64px;position:relative;z-index:1}
+.compact-package .package-card-body{padding:14px 14px 12px 6px;display:flex;flex-direction:column;min-width:0}
+.compact-package .chip{align-self:flex-start;background:color-mix(in srgb,var(--pack-accent) 10%,white);color:var(--pack-accent)}
+.compact-package h3{font-size:18px;line-height:1.45;margin:7px 0 8px;color:#11182f}
+.compact-package .package-meta{margin:0 0 10px;gap:6px}
+.compact-package .package-meta span{font-size:11px;padding:5px 8px;background:rgba(247,249,248,.95)}
+.package-footer{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.package-price{font-size:22px;font-weight:900;color:var(--green);white-space:nowrap;direction:rtl}
+.package-details-btn{border:0;background:var(--red);color:#fff;border-radius:12px;padding:9px 12px;font-size:12px;font-weight:800;white-space:nowrap}
+.package-details-btn span{font-size:17px;vertical-align:-1px;margin-right:3px}
+.package-detail-visual{display:flex;align-items:center;gap:14px;border-radius:18px;padding:15px;background:linear-gradient(110deg,var(--pack-bg),#fff);margin-bottom:13px}
+.detail-package-icon{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--pack-accent) 10%,white);color:var(--pack-accent);flex:0 0 auto}
+.detail-package-icon svg{width:48px;height:48px}
+.package-detail-visual h2{font-size:21px;margin:7px 0 0;line-height:1.4}
+.detail-head{justify-content:flex-end;margin-bottom:8px}
+.detail-price{font-size:27px;white-space:nowrap}
+
+.header-symbol{width:27px;height:27px;display:block}
+.nav-svg{width:24px;height:24px;display:block}
+.booking-fab .nav-svg{width:28px;height:28px}
+
+@media(max-width:620px){
+ .package-search-tools{grid-template-columns:1fr}
+ .compact-package{grid-template-columns:94px 1fr;min-height:154px}
+ .package-icon-wrap{min-height:154px;padding:12px}
+ .package-icon-wrap:before{width:68px;height:68px}.package-icon-wrap svg{width:54px;height:54px}
+ .compact-package .package-card-body{padding:12px 12px 10px 4px}
+ .compact-package h3{font-size:17px}
+ .package-price{font-size:21px}
+ .package-details-btn{padding:9px 10px}
+}
+@media(max-width:390px){
+ .compact-package{grid-template-columns:82px 1fr}
+ .package-icon-wrap:before{width:60px;height:60px}.package-icon-wrap svg{width:47px;height:47px}
+ .compact-package h3{font-size:16px}
+ .package-price{font-size:19px}.package-details-btn{font-size:11px}
+}
