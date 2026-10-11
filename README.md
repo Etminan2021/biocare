@@ -20,3 +20,6 @@
 - Compact package cards with category-specific medical icons.
 - Search and quick filters for fasting / no fasting / best-selling.
 - Cleaner package details and fixed navigation icons.
+
+
+V6: تحديث أسعار التحاليل من الملف المرفق (509 صف إنجليزي + 148 صف عربي)، الباقات 100 مطابقة. الأسعار القديمة للتحاليل غير المذكورة في الملف بقيت كما كانت ويجب مراجعتها قبل اعتمادها تجارياً. لا توجد وظائف مرضى حقيقية أو LIS.
