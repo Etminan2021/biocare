@@ -1,10 +1,10 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>بيوكير | فريق الزيارات</title><style>body{font:16px system-ui;background:#f5f8f6;color:#163b2d;margin:0;padding:22px}main{max-width:540px;margin:auto}.card{background:white;border:1px solid #dce8e1;border-radius:18px;padding:20px;margin:16px 0}input,button,select{font:inherit;padding:13px;border-radius:10px;margin:7px 0;box-sizing:border-box;width:100%}button{background:#176744;color:white;border:0;font-weight:bold}button:disabled{opacity:.5}input{border:1px solid #cadbd1}small{color:#526b5e}#status{white-space:pre-wrap}h1{font-size:24px}.who{background:#eef7f2;border-radius:10px;padding:10px;margin:8px 0;word-break:break-word}</style></head><body><main><h1>بيوكير | فريق الزيارات المنزلية</h1><div class="card"><p>هذه الصفحة لموظفي الزيارات المعتمدين فقط. يتم إرسال الموقع أثناء فتح الصفحة وتفعيل المشاركة.</p><div id="who" class="who" hidden></div><input id="email" type="email" autocomplete="username" placeholder="البريد الإلكتروني"><input id="pass" type="password" autocomplete="current-password" placeholder="كلمة المرور"><button id="login">تسجيل الدخول</button><button id="logout" hidden>تسجيل الخروج</button></div><div id="work" class="card" hidden><label>الزيارة المسندة إليك</label><select id="orders"></select><div id="details" style="margin:12px 0"></div><button id="start">بدء مشاركة موقعي</button><button id="stop" disabled>إيقاف مشاركة الموقع</button><p><small>يجب إبقاء الصفحة مفتوحة والسماح بالموقع. عند قفل الجهاز قد يتوقف تحديث الموقع. لا يوجد تتبع في الخلفية.</small></p></div><div class="card" id="status">سجّل الدخول للبدء.</div></main><script type="module">
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>بيوكير | فريق الزيارات</title><style>body{font:16px system-ui;background:#f5f8f6;color:#163b2d;margin:0;padding:22px}main{max-width:540px;margin:auto}.card{background:white;border:1px solid #dce8e1;border-radius:18px;padding:20px;margin:16px 0}input,button,select{font:inherit;padding:13px;border-radius:10px;margin:7px 0;box-sizing:border-box;width:100%}button{background:#176744;color:white;border:0;font-weight:bold}button:disabled{opacity:.5}input{border:1px solid #cadbd1}small{color:#526b5e}#status{white-space:pre-wrap}h1{font-size:24px}.who{background:#eef7f2;border-radius:10px;padding:10px;margin:8px 0;word-break:break-word}.visit-state{background:#f1f7f4;border:1px solid #d6e6dd;border-radius:12px;padding:12px;margin:12px 0}.visit-state strong{display:block;margin-bottom:8px}.status-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.status-actions button{margin:0}.status-actions button.current{outline:3px solid #a7c8b5}.status-actions button.done{background:#dfeae4;color:#315b47}.status-actions button.next{background:#176744}.status-actions button.locked{background:#b9c8c0;color:#fff}</style></head><body><main><h1>بيوكير | فريق الزيارات المنزلية</h1><div class="card"><p>هذه الصفحة لموظفي الزيارات المعتمدين فقط. يتم إرسال الموقع أثناء فتح الصفحة وتفعيل المشاركة.</p><div id="who" class="who" hidden></div><input id="email" type="email" autocomplete="username" placeholder="البريد الإلكتروني"><input id="pass" type="password" autocomplete="current-password" placeholder="كلمة المرور"><button id="login">تسجيل الدخول</button><button id="logout" hidden>تسجيل الخروج</button></div><div id="work" class="card" hidden><label>الزيارة المسندة إليك</label><select id="orders"></select><div id="details" style="margin:12px 0"></div><div id="visitState" class="visit-state" hidden><strong id="visitStateText">حالة الزيارة</strong><div class="status-actions"><button id="goEnRoute" type="button">🚗 في الطريق</button><button id="goArrived" type="button">📍 وصلت للموقع</button><button id="goProcessing" type="button">▶️ بدء الزيارة</button><button id="goCompleted" type="button">✅ اكتملت الزيارة</button></div></div><button id="start">بدء مشاركة موقعي</button><button id="stop" disabled>إيقاف مشاركة الموقع</button><p><small>يجب إبقاء الصفحة مفتوحة والسماح بالموقع. عند قفل الجهاز قد يتوقف تحديث الموقع. لا يوجد تتبع في الخلفية.</small></p></div><div class="card" id="status">سجّل الدخول للبدء.</div></main><script type="module">
 import{createClient}from'https://esm.sh/@supabase/supabase-js@2';
 const db=createClient('https://jlibhpavbqfeegsehekm.supabase.co','sb_publishable_XVOmCPOiqdUlG-pOPhrQ0g_rIV0R6tK',{
  auth:{storageKey:'biocare-field-staff-auth-v1',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
 });
 const $=id=>document.getElementById(id);
-let watch=null,latest=null,timer=null,busy=false;
+let watch=null,latest=null,timer=null,busy=false,currentOrder=null;
 const msg=t=>$('status').textContent=t;
 function loginState(user){
  $('logout').hidden=!user;
@@ -18,14 +18,67 @@ function loginState(user){
 async function load(){
  const{data:{user}}=await db.auth.getUser();loginState(user);
  if(!user){msg('سجّل الدخول بحساب موظف الزيارات المنزلية.');return}
- const{data,error}=await db.rpc('care_staff_orders');
+ const{data,error}=await db.rpc('care_staff_orders_v2');
  if(error){msg('تم تسجيل الدخول، لكن تعذر تحميل الزيارات: '+(error.message||'خطأ غير معروف'));return}
  const select=$('orders');select.replaceChildren();
- for(const o of data||[]){const op=document.createElement('option');op.value=o.order_number;op.textContent=o.order_number+' — '+o.service_name;select.appendChild(op)}
+ for(const o of data||[]){const op=document.createElement('option');op.value=o.order_number;op.textContent=o.order_number+' — '+o.service_name;op.dataset.status=o.status;op.dataset.type=o.service_type;select.appendChild(op)}
  $('start').disabled=!data?.length;
- msg(data?.length?'تم تسجيل الدخول بنجاح. اختر الزيارة ثم اضغط بدء مشاركة موقعي.':'تم تسجيل الدخول، لكن لا توجد زيارات مسندة لهذا الحساب.');
- if(data?.length)loadDetails();
+ msg(data?.length?'تم تسجيل الدخول بنجاح. اختر الزيارة ثم حدّث حالتها أثناء تنفيذ الزيارة.':'تم تسجيل الدخول، لكن لا توجد زيارات مسندة لهذا الحساب.');
+ if(data?.length){syncSelectedOrder();loadDetails();}else{$('visitState').hidden=true;currentOrder=null;}
 }
+
+const stateLabels={
+ assigned:'تم تعيينك للزيارة',
+ en_route:'أنت في الطريق إلى العميل',
+ arrived:'تم الوصول إلى موقع العميل',
+ processing:'الزيارة/الخدمة قيد التنفيذ',
+ completed:'اكتملت الزيارة'
+};
+const stateFlow=['assigned','en_route','arrived','processing','completed'];
+function syncSelectedOrder(){
+ const op=$('orders').selectedOptions?.[0];
+ if(!op){currentOrder=null;$('visitState').hidden=true;return}
+ currentOrder={number:op.value,status:op.dataset.status||'assigned',type:op.dataset.type||''};
+ renderVisitState();
+}
+function renderVisitState(){
+ const box=$('visitState');if(!currentOrder){box.hidden=true;return}
+ box.hidden=false;
+ $('visitStateText').textContent='الحالة: '+(stateLabels[currentOrder.status]||currentOrder.status);
+ const mapping=[['goEnRoute','en_route'],['goArrived','arrived'],['goProcessing','processing'],['goCompleted','completed']];
+ const now=stateFlow.indexOf(currentOrder.status);
+ for(const [id,state] of mapping){
+   const b=$(id),idx=stateFlow.indexOf(state);
+   b.disabled=idx!==now+1;
+   b.className=idx<now+1?'done':idx===now+1?'next':'locked';
+ }
+}
+async function setVisitStatus(nextStatus){
+ if(!currentOrder)return;
+ if(nextStatus==='en_route'&&watch===null){
+   msg('ابدأ مشاركة موقعك أولًا، ثم اضغط «في الطريق».');
+   return;
+ }
+ if(nextStatus==='completed'&&!confirm('تأكيد اكتمال الزيارة؟ بعد ذلك سيتوقف التتبع المباشر.'))return;
+ const expectedNext=stateFlow[stateFlow.indexOf(currentOrder.status)+1];
+ if(nextStatus!==expectedNext){msg('يجب تحديث حالة الزيارة بالترتيب.');return}
+ try{
+   if(nextStatus==='completed'){
+     if(watch!==null)navigator.geolocation.clearWatch(watch);
+     watch=null;clearInterval(timer);timer=null;
+     if(latest)await publish(false);
+   }
+   msg('جارٍ تحديث حالة الزيارة...');
+   const{data,error}=await db.rpc('care_staff_set_visit_status',{p_order_number:currentOrder.number,p_status:nextStatus});
+   if(error)throw error;
+   currentOrder.status=String(data||nextStatus);
+   msg('تم تحديث الحالة: '+(stateLabels[currentOrder.status]||currentOrder.status));
+   if(nextStatus==='completed'){await load();return}
+   const op=$('orders').selectedOptions?.[0];if(op)op.dataset.status=currentOrder.status;
+   renderVisitState();
+ }catch(e){msg('تعذر تحديث حالة الزيارة: '+(e.message||'خطأ غير معروف'))}
+}
+
 async function loadDetails(){
  const order=$('orders').value,box=$('details');
  if(!order){box.textContent='';return}
@@ -58,7 +111,11 @@ async function stop(){
  if($('orders').value)await publish(false);
  $('start').disabled=false;$('stop').disabled=true;$('orders').disabled=false;
 }
-$('orders').onchange=loadDetails;
+$('orders').onchange=()=>{syncSelectedOrder();loadDetails();};
+$('goEnRoute').onclick=()=>setVisitStatus('en_route');
+$('goArrived').onclick=()=>setVisitStatus('arrived');
+$('goProcessing').onclick=()=>setVisitStatus('processing');
+$('goCompleted').onclick=()=>setVisitStatus('completed');
 $('start').onclick=()=>{
  if(!navigator.geolocation){msg('الموقع غير مدعوم على هذا الجهاز.');return}
  $('orders').disabled=true;$('start').disabled=true;$('stop').disabled=false;
