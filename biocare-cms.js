@@ -5,8 +5,19 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 async function rpc(name,args={}){const r=await fetch(`${URL}/rest/v1/rpc/${name}`,{method:'POST',headers:{apikey:KEY,Authorization:`Bearer ${KEY}`,'Content-Type':'application/json'},body:JSON.stringify(args)});if(!r.ok)throw Error(await r.text());return r.json()}
 let content=[],services={},settings={},branches=[],specialties=[],providers=[],observer=null,carouselTimer=null,rendering=false;
 function safeUrl(u){try{const x=new URL(String(u||''),location.href);return ['https:','http:'].includes(x.protocol)?x.href:''}catch{return''}}
+function assetUrl(u){
+ const s=safeUrl(u); if(!s)return '';
+ try{
+   const x=new URL(s);
+   if(x.hostname==='etminan2021.github.io' && x.pathname.startsWith('/biocare/')){
+     const file=x.pathname.slice('/biocare/'.length);
+     if(file) return 'https://raw.githubusercontent.com/Etminan2021/biocare/main/'+file;
+   }
+ }catch{}
+ return s;
+}
 function waNumber(){return String(settings.whatsapp_number||'966567669779').replace(/[^\d]/g,'')}
-function media(i){const u=safeUrl(i.media_url);if(!u)return'';if(i.kind==='video'){const yt=u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([^&?/]+)/);if(yt)return `<iframe src="https://www.youtube.com/embed/${encodeURIComponent(yt[1])}" title="${esc(i.title||'فيديو')}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;return `<video controls playsinline preload="metadata" src="${u}"></video>`}return `<img src="${u}" alt="${esc(i.title||'إعلان')}">`}
+function media(i){const u=assetUrl(i.media_url);if(!u)return'';if(i.kind==='video'){const yt=u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([^&?/]+)/);if(yt)return `<iframe src="https://www.youtube.com/embed/${encodeURIComponent(yt[1])}" title="${esc(i.title||'فيديو')}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;return `<video controls playsinline preload="metadata" src="${u}"></video>`}return `<img src="${u}" alt="${esc(i.title||'إعلان')}">`}
 function applyCatalog(overrides,custom){
  const cat=window.BIOCARE_CATALOG;if(!cat)return;
  for(const x of custom||[]){if(!x.active)continue;const arr=x.item_type==='test'?cat.tests:cat.packages,idKey=x.item_type==='test'?'code':'id';if(arr.some(y=>String(y[idKey])===String(x.item_id)))continue;const obj=x.item_type==='test'?{code:x.item_id,name:x.name,en:x.en_name||x.name,category:x.category||'أخرى',price:x.price,note:x.note||'',official:false}:{id:x.item_id,name:x.name,category:x.category||'أخرى',price:x.price,count:Array.isArray(x.components)?x.components.length:0,fasting:x.fasting||'',description:x.description||'',components:x.components||[]};arr.push(obj)}
@@ -14,7 +25,7 @@ function applyCatalog(overrides,custom){
  if(typeof window.render==='function')window.render()
 }
 function applyBrand(){
- const logo=safeUrl(settings.logo_url);if(logo)document.querySelectorAll('.header-logo,.drawer-head img').forEach(img=>img.src=logo);
+ const logo=assetUrl(settings.logo_url);if(logo)document.querySelectorAll('.header-logo,.drawer-head img').forEach(img=>img.src=logo);
  if(settings.app_name_ar)document.title=settings.app_name_ar+' | Biocare';
 }
 function injectTicker(){
@@ -42,7 +53,7 @@ function overrideConsultations(){
 function overrideVirtual(){
  if(!specialties.length)return;
  window.biocareVirtual=()=>{if(services.virtual_clinic?.enabled===false)return alert('العيادة الافتراضية غير متاحة حاليًا.');openModal(`<div class="bio-care-shell"><h2>العيادة الافتراضية</h2><p class="muted">اختر التخصص.</p><div class="bio-care-specialties">${specialties.filter(s=>s.active).map(s=>`<button onclick="bcCmsSpecialty('${s.id}')">${esc(s.name)}</button>`).join('')}</div></div>`)};
- window.bcCmsSpecialty=id=>{const s=specialties.find(x=>x.id===id),list=providers.filter(p=>p.active&&p.specialty_id===id);if(!s)return;openModal(`<div class="bio-care-shell"><h2>${esc(s.name)}</h2>${list.length?list.map(p=>`<div class="card">${safeUrl(p.image_url)?`<img src="${safeUrl(p.image_url)}" alt="${esc(p.name)}" style="width:76px;height:76px;border-radius:50%;object-fit:cover">`:''}<h3>${esc(p.name)}</h3>${p.title?`<p>${esc(p.title)}</p>`:''}${p.bio?`<p class="muted">${esc(p.bio)}</p>`:''}${safeUrl(p.booking_url)?`<a class="primary" target="_blank" rel="noopener" href="${safeUrl(p.booking_url)}">حجز / تواصل</a>`:''}</div>`).join(''):`<div class="bio-care-notice">لا يوجد مقدم خدمة منشور حاليًا لهذا التخصص.</div>`}</div>`)}
+ window.bcCmsSpecialty=id=>{const s=specialties.find(x=>x.id===id),list=providers.filter(p=>p.active&&p.specialty_id===id);if(!s)return;openModal(`<div class="bio-care-shell"><h2>${esc(s.name)}</h2>${list.length?list.map(p=>`<div class="card">${assetUrl(p.image_url)?`<img src="${assetUrl(p.image_url)}" alt="${esc(p.name)}" style="width:76px;height:76px;border-radius:50%;object-fit:cover">`:''}<h3>${esc(p.name)}</h3>${p.title?`<p>${esc(p.title)}</p>`:''}${p.bio?`<p class="muted">${esc(p.bio)}</p>`:''}${safeUrl(p.booking_url)?`<a class="primary" target="_blank" rel="noopener" href="${safeUrl(p.booking_url)}">حجز / تواصل</a>`:''}</div>`).join(''):`<div class="bio-care-notice">لا يوجد مقدم خدمة منشور حاليًا لهذا التخصص.</div>`}</div>`)}
 }
 function applyServiceRules(){
  const on=k=>services[k]?.enabled!==false;
