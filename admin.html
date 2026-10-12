@@ -4,46 +4,86 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#155b3f">
-<title>بيوكير | لوحة التحكم</title>
+<title>بيوكير | Super Admin</title>
 <style>
-:root{--g:#155b3f;--g2:#0e4632;--r:#c6282e;--bg:#f5f8f6;--line:#dce8e1;--muted:#6b7a72}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,"SF Arabic","Segoe UI",Arial;color:#153a2c}
+:root{--g:#155b3f;--g2:#0e4632;--r:#c6282e;--bg:#f5f8f6;--line:#dce8e1;--muted:#6b7a72;--warn:#fff8e7}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:#153a2c;font-family:system-ui,-apple-system,"SF Arabic","Segoe UI",Arial,sans-serif}
 button,input,select,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
-header{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px 16px}
-header img{height:46px;max-width:190px;object-fit:contain}header a{color:var(--g);text-decoration:none;font-weight:800}
-main{max-width:1180px;margin:auto;padding:16px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0}
-h1,h2,h3{margin-top:0}.muted{color:var(--muted);line-height:1.65}.notice{background:#fff8e7;border:1px solid #eedcaf;border-radius:14px;padding:12px}
-input,select,textarea{width:100%;border:1px solid #cbdcd2;border-radius:11px;padding:11px;background:#fff;margin:5px 0 10px}
+header{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr minmax(150px,250px) 1fr;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top)) 14px 9px}
+header img{height:48px;max-width:100%;object-fit:contain;justify-self:center}header a{color:var(--g);text-decoration:none;font-weight:800;font-size:14px}header a:last-child{justify-self:end}
+main{max-width:1180px;margin:auto;padding:14px 14px calc(35px + env(safe-area-inset-bottom))}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0}.item{background:#fff;border:1px solid var(--line);border-radius:15px;padding:13px;margin:10px 0}
+h1,h2,h3{margin-top:0}.muted{color:var(--muted);line-height:1.65}.small{font-size:12px;color:var(--muted);line-height:1.55}.notice{background:var(--warn);border:1px solid #eedcaf;border-radius:14px;padding:12px;line-height:1.6}
+input,select,textarea{width:100%;border:1px solid #cbdcd2;border-radius:11px;padding:11px;background:#fff;color:#17382d;margin:5px 0 10px}textarea{min-height:90px;resize:vertical}
 button{border:0;border-radius:11px;padding:11px 14px;font-weight:800;background:var(--g);color:#fff}.secondary{background:#eaf3ee;color:var(--g)}.danger{background:#fff0f0;color:#a6282d;border:1px solid #f0c6c8}.ghost{background:#fff;color:var(--g);border:1px solid var(--line)}
-.tabs{display:flex;gap:8px;overflow:auto;padding:7px 0 4px;position:sticky;top:72px;background:var(--bg);z-index:8}.tabs button{white-space:nowrap;background:#fff;color:var(--g);border:1px solid var(--line)}.tabs button.active{background:var(--g);color:#fff}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.stat{font-size:30px;font-weight:900}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row>*{flex:1}.item{border:1px solid var(--line);border-radius:14px;padding:13px;margin:10px 0}.badge{display:inline-block;background:#edf5f1;color:var(--g);padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800}.small{font-size:12px;color:var(--muted)}.media-preview{max-width:100%;max-height:180px;border-radius:12px}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1;min-width:110px}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:650px){.two{grid-template-columns:1fr}.tabs{top:70px}}
-#loginCard{max-width:520px;margin:40px auto}.who{background:#eef7f2;border-radius:10px;padding:10px;word-break:break-word}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:11px}.stat{font-size:30px;font-weight:900}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row>*{flex:1}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1;min-width:105px}.badge{display:inline-block;background:#edf5f1;color:var(--g);padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800}.badge.off{background:#f5eded;color:#9c3439}
+.media-preview{display:block;max-width:100%;max-height:220px;border-radius:12px;object-fit:cover;margin:8px 0}.who{background:#eef7f2;border-radius:10px;padding:10px;word-break:break-word}
+.tabs{display:flex;gap:7px;overflow:auto;padding:8px 0 5px;position:sticky;top:72px;background:var(--bg);z-index:15;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tabs button{white-space:nowrap;background:#fff;color:var(--g);border:1px solid var(--line)}.tabs button.active{background:var(--g);color:#fff}
+.mobile-nav{display:none;position:sticky;top:72px;z-index:16;background:var(--bg);padding:8px 0}.mobile-nav select{margin:0;background:#fff;font-weight:800}
+.section-title{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.section-title h2{margin:0}
+.kv{display:grid;grid-template-columns:minmax(110px,.6fr) 1.4fr;gap:8px;align-items:start}.list-scroll{max-height:65vh;overflow:auto}
+.switchline{display:flex;align-items:center;justify-content:space-between;gap:10px}.switchline select{max-width:170px;margin:0}
+details{border:1px solid var(--line);border-radius:13px;padding:11px;margin:8px 0;background:#fff}summary{cursor:pointer;font-weight:800}
+#loginCard{max-width:520px;margin:40px auto}
+@media(max-width:720px){
+ header{grid-template-columns:1fr 1.6fr 1fr}header a{font-size:12px}.tabs{display:none}.mobile-nav{display:block}.two,.three{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}.card{border-radius:16px}.kv{grid-template-columns:1fr}
+}
+@media(max-width:390px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header><a href="index.html">تطبيق العميل</a><img src="logo-full.png" alt="Biocare"><a href="team.html">فريق الزيارات</a></header>
+<header>
+<a href="index.html">تطبيق العميل</a>
+<img src="logo-full.png" alt="مختبرات بيوكير الطبية">
+<a href="team.html">فريق الزيارات</a>
+</header>
 <main>
 <section id="loginCard" class="card">
-<h1>لوحة تحكم بيوكير</h1>
-<p class="muted">دخول المدراء المعتمدين فقط.</p>
+<h1>Biocare Super Admin</h1>
+<p class="muted">لوحة الإدارة المركزية للمدراء المعتمدين فقط.</p>
 <input id="email" type="email" autocomplete="username" placeholder="البريد الإلكتروني">
 <input id="password" type="password" autocomplete="current-password" placeholder="كلمة المرور">
 <button id="loginBtn">تسجيل الدخول</button>
 <p id="loginMsg" class="muted"></p>
 </section>
+
 <section id="adminApp" class="hidden">
 <div class="card row"><div><strong>لوحة الإدارة المركزية</strong><div id="adminWho" class="small"></div></div><button id="logoutBtn" class="ghost" style="flex:0 0 auto">تسجيل الخروج</button></div>
+
+<div class="mobile-nav"><select id="mobileSection">
+<option value="dashboard">الرئيسية</option>
+<option value="orders">الطلبات</option>
+<option value="users">العملاء</option>
+<option value="staff">الموظفون والصلاحيات</option>
+<option value="content">الإعلانات والمحتوى</option>
+<option value="catalog">التحاليل والباقات</option>
+<option value="branches">الفروع</option>
+<option value="virtual">العيادة الافتراضية</option>
+<option value="notifications">الإشعارات</option>
+<option value="services">الخدمات</option>
+<option value="appearance">الهوية والإعدادات</option>
+<option value="audit">سجل الإدارة</option>
+</select></div>
+
 <div class="tabs" id="tabs">
 <button data-tab="dashboard" class="active">الرئيسية</button>
 <button data-tab="orders">الطلبات</button>
+<button data-tab="users">العملاء</button>
 <button data-tab="staff">الموظفون</button>
 <button data-tab="content">الإعلانات والمحتوى</button>
 <button data-tab="catalog">التحاليل والباقات</button>
-<button data-tab="services">الخدمات والإعدادات</button>
+<button data-tab="branches">الفروع</button>
+<button data-tab="virtual">العيادة الافتراضية</button>
+<button data-tab="notifications">الإشعارات</button>
+<button data-tab="services">الخدمات</button>
+<button data-tab="appearance">الهوية والإعدادات</button>
+<button data-tab="audit">السجل</button>
 </div>
 <div id="panel"></div>
 </section>
 </main>
 <script src="catalog.js?v=9"></script>
-<script type="module" src="admin.js?v=1"></script>
-</body></html>
+<script type="module" src="admin.js?v=2"></script>
+</body>
+</html>
