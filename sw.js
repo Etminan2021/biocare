@@ -1,5 +1,5 @@
-const CACHE='biocare-app-icon-v2-20261012';
-const ASSETS=['./','./index.html','./styles.css','./catalog.js','./app.js','./profile.js','./saleem.js','./services.js','./biocare-cloud.js','./biocare-location.js','./biocare-team-provider.js','./biocare-cms.js','./team.html','./admin.html','./admin.js','./manifest.webmanifest','./biocare-icon-192.png','./biocare-icon-512.png','./biocare-apple-touch-icon.png','./logo-full.png',,];
+const CACHE='biocare-ios-icon-v3-20261012';
+const ASSETS=['./','./index.html','./styles.css','./catalog.js','./app.js','./profile.js','./saleem.js','./services.js','./biocare-cloud.js','./biocare-location.js','./biocare-team-provider.js','./biocare-cms.js','./team.html','./admin.html','./admin.js','./manifest.webmanifest','./logo-full.png','./icon-192.png','./icon-512.png','./apple-touch-icon.png'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(fetch(e.request).then(r=>{const x=r.clone();caches.open(CACHE).then(c=>c.put(e.request,x));return r}).catch(()=>caches.match(e.request).then(r=>r||caches.match('./index.html'))))});
