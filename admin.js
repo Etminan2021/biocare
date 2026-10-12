@@ -39,7 +39,7 @@ async function showTab(t){
   if(t==='notifications')await notifications();
   if(t==='services')await services();
   if(t==='appearance')await appearance();
-  if(t==='introVideo')await introVideoAdmin();
+  if(t==='introVideo')await window.introVideoAdmin();
   if(t==='audit')await audit();
  }catch(e){panel.innerHTML=`<div class="card notice">تعذر التحميل: ${esc(e.message||e)}</div>`}
 }
