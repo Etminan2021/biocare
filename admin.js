@@ -207,4 +207,11 @@ async function audit(){
  const rows=await rpc('care_admin_audit_list',{p_limit:200});
  panel.innerHTML=`<div class="section-title"><h2>سجل تغييرات الإدارة</h2><span class="badge">${rows?.length||0}</span></div><div class="list-scroll">${(rows||[]).map(a=>`<div class="item"><strong>${esc(a.action)} — ${esc(a.entity_type)}</strong><p class="small">${esc(a.admin_email||'')} — ${esc(new Date(a.created_at).toLocaleString('ar-SA'))}</p><p class="small">المعرف: ${esc(a.entity_id||'')}</p></div>`).join('')||'<div class="card">لا توجد عمليات مسجلة بعد.</div>'}</div>`
 }
-boot();
+window.introVideoAdmin = async function () {
+  panel.innerHTML = `
+    <div class="card">
+      <h2>إدارة فيديو البداية</h2>
+      <p class="muted">جارٍ تجهيز إعدادات فيديو بداية التطبيق.</p>
+    </div>
+  `;
+};boot();
