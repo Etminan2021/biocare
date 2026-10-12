@@ -27,6 +27,12 @@
 
 <main id="app"></main>
 
+<button class="instant-chat-btn" type="button" onclick="openInstantChat()" aria-label="المحادثة الفورية" title="المحادثة الفورية">
+  <span class="instant-chat-dot" aria-hidden="true"></span>
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-8.4 8A9.6 9.6 0 0 1 8 18.7L4 20l1.3-3.5A8 8 0 1 1 20 11.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 11.7h7M8.5 8.7h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  <span class="instant-chat-label">محادثة فورية</span>
+</button>
+
 <nav class="bottom-nav" aria-label="التنقل الرئيسي">
   <button data-view="home" class="nav-item active"><span><svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11 12 3l9 8v9H5v-9"/><path d="M9 20v-6h6v6"/></svg></span><b>الرئيسية</b></button>
   <button data-view="packages" class="nav-item"><span><svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16v13H4z"/><path d="M8 7V4h8v3M4 11h16"/></svg></span><b>الباقات</b></button>
@@ -51,9 +57,9 @@
  </div>
 </div>
 
-<script src="catalog.js?v=6"></script>
+<script src="catalog.js?v=8"></script>
 <script>
-window.BIOCARE_CATALOG_READY.then(()=>{const s=document.createElement("script");s.src="app.js?v=6";document.body.appendChild(s)}).catch(e=>{console.error(e);document.getElementById("app").innerHTML="<div style=\"padding:24px\">تعذر تحميل بيانات التطبيق. حدّث الصفحة.</div>"});
+window.BIOCARE_CATALOG_READY.then(()=>{const s=document.createElement("script");s.src="app.js?v=8";document.body.appendChild(s)}).catch(e=>{console.error(e);document.getElementById("app").innerHTML="<div style=\"padding:24px\">تعذر تحميل بيانات التطبيق. حدّث الصفحة.</div>"});
 </script>
 <script>
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}

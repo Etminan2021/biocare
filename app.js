@@ -23,25 +23,17 @@ const HOME_CATEGORIES = [
 
 let view='home';
 let selected=JSON.parse(localStorage.getItem('biocare_cart')||'[]');
-let session=JSON.parse(localStorage.getItem('biocare_session')||'null');
-let family=JSON.parse(localStorage.getItem('biocare_family')||'[]');
-let bookings=JSON.parse(localStorage.getItem('biocare_bookings')||'[]');
-let consults=JSON.parse(localStorage.getItem('biocare_consults')||'[]');
-let refills=JSON.parse(localStorage.getItem('biocare_refills')||'[]');
 
-if(!bookings.length) bookings=[{id:'B-2041',name:'عميل تجريبي',branch:BRANCHES[0],date:'2026-10-15',time:'18:00',status:'قادم'}];
-if(!consults.length) consults=[{id:'C-109',doctor:'د. سليم الاستشاري',date:'2026-10-16',time:'20:00',status:'مؤكد'}];
-
-const RESULTS=[
-  {id:'R-1001',title:'نتيجة تجريبية معتمدة',date:'2026-10-01',status:'معتمدة'},
-  {id:'R-1002',title:'نتيجة قيد الاعتماد',date:'2026-10-09',status:'قيد الاعتماد'}
-];
-const PRESCRIPTIONS=[
-  {id:'RX-9001',doctor:'د. سليم الاستشاري',date:'2026-10-01',status:'سارية',items:[
-    ['دواء تجريبي A','قرص مرة يوميًا','5 أيام'],
-    ['دواء تجريبي B','عند الحاجة','3 أيام']
-  ]}
-];
+// إزالة بيانات الاختبار المحلية القديمة مرة واحدة عند الانتقال للنسخة الإنتاجية الآمنة.
+if(localStorage.getItem('biocare_prod_cleanup_v7')!=='1'){
+  ['biocare_session','biocare_family','biocare_bookings','biocare_consults','biocare_refills'].forEach(k=>localStorage.removeItem(k));
+  localStorage.setItem('biocare_prod_cleanup_v7','1');
+}
+let session=null;
+let family=[];
+let bookings=[];
+let consults=[];
+let refills=[];
 
 const app=document.getElementById('app');
 const modal=document.getElementById('modal');
@@ -50,6 +42,11 @@ const modalBody=document.getElementById('modalBody');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const xml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
 const fmtPrice=v=>Number.isFinite(Number(v))?`${Number(v).toLocaleString('ar-SA')} ر.س`:'السعر عند الطلب';
+const displayPackageCategory=c=>/^(profile|profiles)$/i.test(String(c||'').trim())?'باقات الفحوصات':String(c||'');
+const WHATSAPP_NUMBER='966567669779';
+const openWhatsApp=message=>window.open('https://wa.me/'+WHATSAPP_NUMBER+'?text='+encodeURIComponent(message),'_blank','noopener');
+window.openInstantChat=()=>openWhatsApp('السلام عليكم، أرغب في التحدث مع خدمة عملاء مختبرات بيوكير الطبية.');
+
 
 function save(){
   localStorage.setItem('biocare_session',JSON.stringify(session));
@@ -175,16 +172,16 @@ function home(){
    <div class="hero-copy">
      <span class="eyebrow">BIOCARE MEDICAL LABORATORIES</span>
      <h1>صحتك تستحق الاطمئنان</h1>
-     <p>استعرض التحاليل والباقات، احجز موعدك، وتابع النتائج والاستشارات من مكان واحد.</p>
+     <p>استعرض التحاليل والباقات والأسعار، وتعرّف على فروع مختبرات بيوكير الطبية وخدماتها.</p>
      <div class="hero-actions"><button class="primary" onclick="go('tests')">استعرض التحاليل</button><button class="ghost" onclick="go('packages')">استعرض الباقات</button></div>
    </div>
  </section>
  <section class="section"><div class="section-head"><button class="viewall" onclick="go('tests')">عرض الكل ‹</button><h2 class="under">التحاليل</h2></div>${categoryGrid()}</section>
  <section class="section"><div class="section-head"><button class="viewall" onclick="go('packages')">عرض الكل ‹</button><h2>الباقات</h2></div>${featuredPackages()}</section>
  <section class="section"><div class="section-head"><button class="viewall" onclick="showBranches()">عرض الكل ‹</button><h2>فروعنا</h2></div>${branches()}</section>
- <section class="section"><div class="section-head"><button class="viewall" onclick="showConsultations()">عرض الكل ‹</button><h2>الاستشارات الطبية</h2></div><div class="cards">
- <div class="card"><span class="chip">جديد</span><h3>استشارة طبية</h3><p class="muted">احجز موعدًا تجريبيًا مع الطبيب، واطلع على المحادثة والوصفة بعد الاستشارة.</p><button class="secondary" onclick="bookConsultation()">احجز استشارة</button></div>
- <div class="card"><span class="chip">وصفة</span><h3>الوصفات الطبية</h3><p class="muted">عرض وصفات تجريبية وطلب إعادة صرف وصفة.</p><button class="secondary" onclick="showPrescriptions()">عرض الوصفات</button></div></div></section>`;
+ <section class="section"><div class="section-head"><button class="viewall" onclick="showConsultations()">تواصل ‹</button><h2>الاستشارات الطبية</h2></div><div class="cards">
+ <div class="card"><span class="chip">واتساب</span><h3>استشارة طبية</h3><p class="muted">يمكن التواصل لطلب الاستشارة، ويتم الرد عادة خلال 24–72 ساعة.</p><button class="secondary" onclick="showConsultations()">تواصل للاستشارة</button></div>
+ </div></section>`;
 }
 
 function tests(){
@@ -224,7 +221,7 @@ function packageCard(p){
  return `<article class="package-card compact-package" style="--pack-bg:${bg};--pack-accent:${accent}">
    <button class="package-icon-wrap" onclick="showPackage('${p.id}')" aria-label="${esc(p.name)}">${packageIcon(p)}</button>
    <div class="package-card-body">
-     <span class="chip">${esc(p.category)}</span>
+     <span class="chip">${esc(displayPackageCategory(p.category))}</span>
      <h3>${esc(p.name)}</h3>
      <div class="package-meta"><span>${typeof p.count==='number'?`${p.count} تحليل`:esc(p.count)}</span><span>${fast?'لا يتطلب صيام':'يتطلب صيام'}</span></div>
      <div class="package-footer"><span class="package-price">${fmtPrice(p.price)}</span><button class="package-details-btn" onclick="showPackage('${p.id}')">عرض التفاصيل <span>‹</span></button></div>
@@ -236,7 +233,7 @@ function packagesView(){
  <div class="section-head"><h2 class="under">الباقات</h2><span class="count-badge">${PACKAGES.length} باقة</span></div>
  <div class="catalog-tools package-search-tools">
    <input id="packageSearch" placeholder="ابحث عن الباقات أو التحاليل..." oninput="renderPackageList()">
-   <select id="packageCategory" onchange="renderPackageList()"><option value="">كل الفئات</option>${(CATALOG.packageCategories||[]).map(c=>`<option>${esc(c)}</option>`).join('')}</select>
+   <select id="packageCategory" onchange="renderPackageList()"><option value="">كل الفئات</option>${(CATALOG.packageCategories||[]).map(c=>`<option value="${esc(c)}">${esc(displayPackageCategory(c))}</option>`).join('')}</select>
  </div>
  <div class="quick-filters" role="group" aria-label="تصفية سريعة">
    <button class="quick-filter active" data-filter="all" onclick="setPackageFilter('all')">الكل</button>
@@ -263,7 +260,7 @@ window.showPackage=id=>{
  const p=PACKAGES.find(x=>x.id===id); if(!p) return;
  const comps=p.components||[];
  openModal(`<div class="package-detail">
-   <div class="package-detail-visual" style="--pack-bg:${themeForCategory(p.category)[0]};--pack-accent:${themeForCategory(p.category)[1]}"><span class="detail-package-icon">${packageIcon(p)}</span><div><span class="chip">${esc(p.category)}</span><h2>${esc(p.name)}</h2></div></div>
+   <div class="package-detail-visual" style="--pack-bg:${themeForCategory(p.category)[0]};--pack-accent:${themeForCategory(p.category)[1]}"><span class="detail-package-icon">${packageIcon(p)}</span><div><span class="chip">${esc(displayPackageCategory(p.category))}</span><h2>${esc(p.name)}</h2></div></div>
    <div class="detail-head"><span class="detail-price">${fmtPrice(p.price)}</span></div>
    ${p.description?`<p class="muted">${esc(p.description)}</p>`:''}
    <div class="detail-facts"><div><b>${typeof p.count==='number'?p.count:esc(p.count)}</b><span>عدد التحاليل/الأنواع</span></div><div><b>${esc(p.fasting)}</b><span>الصيام</span></div></div>
@@ -276,44 +273,31 @@ window.showPackage=id=>{
 
 function booking(){
  const priced=selected.filter(x=>Number.isFinite(Number(x.price)));
- const total=priced.reduce((s,x)=>s+Number(x.price),0);
+ const total=priced.reduce((sum,x)=>sum+Number(x.price),0);
  const pending=selected.length-priced.length;
- return `<section class="section"><div class="section-head"><h2 class="under">الحجز والسلة</h2><span class="count-badge">${selected.length} عنصر</span></div>
- <div class="notice">هذه النسخة الحالية واجهة تجريبية. لا تدخل بيانات مرضى حقيقية حتى يتم تفعيل الـBackend الآمن وربط أنظمة المختبر.</div>
+ return `<section class="section"><div class="section-head"><h2 class="under">السلة</h2><span class="count-badge">${selected.length} عنصر</span></div>
  <div class="card"><h3>اختياراتك</h3>
  ${selected.length?`<div class="cart-list">${selected.map((x,i)=>`<div class="cart-row"><div><strong>${esc(x.name)}</strong><div class="muted">${x.type==='package'?'باقة':'تحليل'} — ${Number.isFinite(Number(x.price))?fmtPrice(x.price):'السعر عند الطلب'}</div></div><button onclick="removeCart(${i})" class="remove-btn">حذف</button></div>`).join('')}</div>`:'<p class="muted">لم تتم إضافة تحاليل أو باقات بعد.</p>'}
  <div class="cart-total"><span>الإجمالي المعروف</span><strong>${fmtPrice(total)}</strong></div>
- ${pending?`<p class="micro-note">يوجد ${pending} تحليل/عنصر يحتاج تأكيد السعر من المختبر قبل الدفع.</p>`:''}
+ ${pending?`<p class="micro-note">يوجد ${pending} تحليل/عنصر يحتاج تأكيد السعر من المختبر.</p>`:''}
  <p class="micro-note">تضاف ضريبة القيمة المضافة للمقيمين.</p>
- <form id="bookingForm"><label>لمن الحجز؟</label><select name="name"><option>${session?esc(session.name):'عميل تجريبي'}</option>${family.map(f=>`<option>${esc(f.name)}</option>`).join('')}</select>
- <label>الفرع</label><select name="branch">${BRANCHES.map(b=>`<option>${esc(b)}</option>`).join('')}</select>
- <label>التاريخ</label><input type="date" name="date" required>
- <label>الوقت</label><select name="time"><option>09:00</option><option>12:00</option><option>16:00</option><option>19:00</option><option>21:00</option></select><br>
- <button class="primary">تسجيل حجز تجريبي</button></form><div id="bookDone"></div></div>
- <div style="margin-top:13px"><button class="ghost" onclick="showAppointments()">مواعيدي وإعادة الجدولة</button></div></section>`;
+ ${selected.length?'<button class="primary" onclick="sendCartWhatsApp()">إرسال الاختيارات عبر واتساب</button>':''}
+ </div></section>`;
 }
 function results(){
- return `<section class="section"><div class="section-head"><h2 class="under">النتائج</h2></div><div class="notice">لا توجد نتائج مرضى حقيقية في هذه النسخة.</div><div class="list">${RESULTS.map(r=>`<div class="card"><div class="row"><div><h3>${r.title}</h3><div class="muted">${r.date}</div></div><span class="chip">${r.status}</span></div><button class="secondary" onclick="openResult('${r.id}')">عرض التقرير</button></div>`).join('')}</div></section>`;
+ return `<section class="section"><div class="section-head"><h2 class="under">النتائج</h2></div>
+ <div class="card"><h3>النتائج الإلكترونية</h3><p class="muted">سيتم تفعيل الدخول الآمن للنتائج بعد اكتمال الربط مع نظام المختبر. لا يتم عرض أي نتائج تجريبية في النسخة الحالية.</p></div></section>`;
 }
 function profile(){
- return `<section class="section"><div class="section-head"><h2 class="under">حسابي</h2></div>${session?`<div class="card"><h3>${esc(session.name)}</h3><p class="muted">${esc(session.phone||'')}</p><div class="button-wrap"><button class="ghost" onclick="showFamily()">أفراد العائلة</button><button class="ghost" onclick="showAppointments()">مواعيدي</button><button class="ghost" onclick="showConsultations()">استشاراتي</button></div></div>`:`<div class="card"><h3>تسجيل الدخول التجريبي</h3><p class="muted">رمز التحقق التجريبي: 1234</p><button class="primary" onclick="openLogin()">تسجيل الدخول</button></div>`}</section>`;
+ return `<section class="section"><div class="section-head"><h2 class="under">حسابي</h2></div>
+ <div class="card"><h3>حساب العميل</h3><p class="muted">تسجيل الدخول وإدارة أفراد العائلة والمواعيد ستُفعّل بعد ربط نظام التحقق وقاعدة البيانات الآمنة.</p></div></section>`;
 }
 function render(){
  document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
  if(view==='home') app.innerHTML=home();
  if(view==='tests'){app.innerHTML=tests();renderTestsList()}
  if(view==='packages'){app.innerHTML=packagesView();renderPackageList()}
- if(view==='booking'){
-   app.innerHTML=booking();
-   const form=document.getElementById('bookingForm');
-   if(form) form.onsubmit=e=>{
-     e.preventDefault(); const f=Object.fromEntries(new FormData(e.target));
-     bookings.unshift({id:'B-'+Date.now().toString().slice(-5),...f,status:'قادم',items:selected.map(x=>x.name)});
-     selected=[];save();
-     document.getElementById('bookDone').innerHTML='<div class="success" style="margin-top:12px">تم حفظ الحجز على هذا الجهاز فقط — ليس حجزًا مؤكدًا.</div>';
-     e.target.reset(); setTimeout(render,400);
-   };
- }
+ if(view==='booking') app.innerHTML=booking();
  if(view==='results') app.innerHTML=results();
  if(view==='profile') app.innerHTML=profile();
  updateCartCount();
@@ -334,32 +318,37 @@ function toast(msg){
  requestAnimationFrame(()=>t.classList.add('show'));setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),250)},1600);
 }
 window.showBranches=()=>openModal(`<h2>فروعنا</h2>${branches()}<p class="micro-note">ساعات العمل: السبت–الخميس 8 صباحًا–12 منتصف الليل، الجمعة 4 مساءً–12 منتصف الليل. فرع الداير يغلق 11 مساءً.</p>`);
-window.openLogin=()=>openModal(`<h2>تسجيل الدخول التجريبي</h2><div class="notice">استخدم الرمز 1234. لا تدخل بيانات حقيقية.</div><form id="loginForm"><label>الاسم</label><input name="name" required><label>الجوال</label><input name="phone" inputmode="numeric"><label>رمز التحقق</label><input name="otp" inputmode="numeric" required></form><br><button class="primary" onclick="submitLogin()">دخول</button>`);
-window.submitLogin=()=>{const f=Object.fromEntries(new FormData(document.getElementById('loginForm')));if(f.otp!=='1234'){alert('الرمز التجريبي 1234');return}session={name:f.name,phone:f.phone};save();closeModal();go('profile')}
-window.showFamily=()=>openModal(`<h2>أفراد العائلة</h2><div class="list">${family.map((f,i)=>`<div class="card row"><div><strong>${esc(f.name)}</strong><div class="muted">${esc(f.relation)}</div></div><button class="ghost" onclick="removeFamily(${i})">حذف</button></div>`).join('')||'<p class="muted">لا يوجد أفراد مضافون</p>'}</div><label>الاسم التجريبي</label><input id="famName"><label>صلة القرابة</label><input id="famRel"><br><button class="secondary" onclick="addFamily()">إضافة فرد</button>`)
-window.addFamily=()=>{const n=document.getElementById('famName').value.trim(),r=document.getElementById('famRel').value.trim();if(!n)return;family.push({name:n,relation:r});save();showFamily()}
-window.removeFamily=i=>{family.splice(i,1);save();showFamily()}
-window.showAppointments=()=>openModal(`<h2>مواعيدي</h2><div class="list">${bookings.map((b,i)=>`<div class="card"><div class="row"><div><strong>${esc(b.branch)}</strong><div class="muted">${esc(b.date)} — ${esc(b.time)}</div></div><span class="chip">${esc(b.status)}</span></div>${b.status==='قادم'?`<div class="button-wrap"><button class="ghost" onclick="reschedule(${i})">إعادة الجدولة</button><button class="ghost" onclick="cancelBooking(${i})">إلغاء</button></div>`:''}</div>`).join('')}</div>`)
-window.reschedule=i=>openModal(`<h2>إعادة الجدولة</h2><label>التاريخ الجديد</label><input type="date" id="newDate"><label>الوقت</label><select id="newTime"><option>09:00</option><option>12:00</option><option>16:00</option><option>19:00</option></select><br><button class="secondary" onclick="saveReschedule(${i})">حفظ</button>`)
-window.saveReschedule=i=>{const d=document.getElementById('newDate').value;if(!d)return;bookings[i].date=d;bookings[i].time=document.getElementById('newTime').value;save();showAppointments()}
-window.cancelBooking=i=>{bookings[i].status='ملغي';save();showAppointments()}
-window.openResult=id=>openModal(`<h2>تقرير نتيجة تجريبي</h2><div class="rx"><div class="rx-head"><div><div class="rx-title">${esc(id)}</div><div class="muted">تقرير عرض فقط وغير صالح للاستخدام الطبي.</div></div><span class="chip">تجريبي</span></div><table class="result-table"><tr><td>CBC</td><td>ضمن المجال المرجعي</td></tr><tr><td>TSH</td><td>2.4</td></tr></table><br><button class="secondary" onclick="window.print()">طباعة / حفظ PDF</button></div>`)
-window.showConsultations=()=>openModal(`<h2>الاستشارات الطبية</h2><div class="notice">وظائف تجريبية فقط وليست خدمة طبية فعلية.</div><div class="list">${consults.map(c=>`<div class="card"><div class="row"><div><strong>${esc(c.doctor)}</strong><div class="muted">${esc(c.date)} — ${esc(c.time)}</div></div><span class="chip">${esc(c.status)}</span></div><div class="button-wrap"><button class="ghost" onclick="openChat()">فتح المحادثة</button><button class="ghost" onclick="showPrescriptions()">الوصفات</button></div></div>`).join('')}</div><br><button class="primary" onclick="bookConsultation()">حجز استشارة جديدة</button>`)
-window.bookConsultation=()=>openModal(`<h2>حجز استشارة طبية</h2><div class="notice">الحجز تجريبي، ولا يتم إرساله إلى طبيب حقيقي.</div><label>الطبيب</label><select id="consultDoctor"><option>د. سليم الاستشاري</option><option>طبيب عام تجريبي</option></select><label>التاريخ</label><input id="consultDate" type="date"><label>الوقت</label><select id="consultTime"><option>18:00</option><option>20:00</option><option>22:00</option></select><br><button class="primary" onclick="saveConsultation()">حفظ الموعد التجريبي</button>`)
-window.saveConsultation=()=>{const d=document.getElementById('consultDate').value;if(!d)return;consults.unshift({id:'C-'+Date.now().toString().slice(-5),doctor:document.getElementById('consultDoctor').value,date:d,time:document.getElementById('consultTime').value,status:'مؤكد'});save();showConsultations()}
-window.openChat=()=>openModal(`<h2>محادثتي</h2><div class="notice">محادثة تجريبية غير مرتبطة بطبيب حقيقي.</div><div class="chat-bubble doctor"><strong>الطبيب:</strong><br>أهلًا، كيف يمكنني مساعدتك اليوم؟</div><div class="chat-bubble">هذه رسالة تجريبية من العميل.</div><label>رسالة جديدة</label><textarea rows="3" placeholder="اكتب رسالة تجريبية..."></textarea><br><button class="secondary" onclick="alert('تم الإرسال محليًا للتجربة فقط')">إرسال</button>`)
-window.showPrescriptions=()=>openModal(`<h2>الوصفات الطبية</h2><div class="notice">الوصفات المعروضة تجريبية وغير صالحة للصرف.</div><div class="list">${PRESCRIPTIONS.map(rx=>`<div class="rx"><div class="rx-head"><div><div class="rx-title">وصفة ${rx.id}</div><div class="muted">${rx.doctor} — ${rx.date}</div></div><span class="chip">${rx.status}</span></div>${rx.items.map(x=>`<p><strong>${esc(x[0])}</strong><br><span class="muted">${esc(x[1])} — ${esc(x[2])}</span></p>`).join('')}<div class="row"><button class="ghost" onclick="window.print()">حفظ PDF</button><button class="secondary" onclick="requestRefill('${rx.id}')">طلب إعادة صرف</button></div></div>`).join('')}</div>`)
-window.requestRefill=id=>{refills.unshift({id:'RF-'+Date.now().toString().slice(-5),rx:id,date:new Date().toISOString().slice(0,10),status:'قيد المراجعة'});save();openModal(`<h2>إعادة صرف وصفة</h2><div class="success">تم إنشاء طلب تجريبي للوصفة ${esc(id)}. الحالة: قيد المراجعة.</div>`)}
-window.showRefills=()=>openModal(`<h2>طلبات إعادة صرف الوصفة</h2><div class="list">${refills.map(r=>`<div class="card"><strong>${esc(r.rx)}</strong><div class="muted">${esc(r.date)}</div><span class="chip">${esc(r.status)}</span></div>`).join('')||'<p class="muted">لا توجد طلبات</p>'}</div>`)
+window.sendCartWhatsApp=()=>{
+ const lines=selected.map((x,i)=>`${i+1}. ${x.name}${Number.isFinite(Number(x.price))?' - '+fmtPrice(x.price):' - السعر عند الطلب'}`);
+ const msg=['السلام عليكم، أرغب بالاستفسار عن التحاليل/الباقات التالية:',...lines,'','يرجى تأكيد السعر والمتطلبات قبل الزيارة.'].join('\n');
+ openWhatsApp(msg);
+};
+window.openLogin=()=>openModal(`<h2>حساب العميل</h2><div class="notice">تسجيل الدخول الآمن قيد الربط حاليًا، ولن يطلب التطبيق بيانات شخصية حتى يتم تفعيل التحقق الآمن.</div>`);
+window.submitLogin=()=>{};
+window.showFamily=()=>openModal(`<h2>أفراد العائلة</h2><div class="notice">هذه الخدمة ستتوفر بعد تفعيل حساب العميل الآمن.</div>`);
+window.addFamily=()=>{};
+window.removeFamily=()=>{};
+window.showAppointments=()=>openModal(`<h2>مواعيدي</h2><div class="notice">إدارة المواعيد الإلكترونية ستتوفر بعد ربط نظام الحجز.</div>`);
+window.reschedule=()=>{};
+window.saveReschedule=()=>{};
+window.cancelBooking=()=>{};
+window.openResult=()=>openModal(`<h2>النتائج</h2><div class="notice">سيتم تفعيل عرض النتائج بعد الربط الآمن مع نظام المختبر.</div>`);
+window.showConsultations=()=>openModal(`<h2>الاستشارات الطبية</h2><div class="card"><p class="muted">لطلب استشارة، تواصل عبر واتساب. يتم الرد عادة خلال 24–72 ساعة.</p><button class="primary" onclick="openWhatsApp('السلام عليكم، أرغب بطلب استشارة طبية من مختبرات بيوكير الطبية.')">تواصل عبر واتساب</button></div>`);
+window.bookConsultation=()=>showConsultations();
+window.saveConsultation=()=>{};
+window.openChat=()=>showConsultations();
+window.showPrescriptions=()=>openModal(`<h2>الوصفات الطبية</h2><div class="notice">لا يعرض التطبيق وصفات تجريبية. سيتم تفعيل الوصفات عند توفر نظام طبي معتمد ومربوط بشكل آمن.</div>`);
+window.requestRefill=()=>{};
+window.showRefills=()=>openModal(`<h2>طلبات إعادة صرف الوصفة</h2><div class="notice">الخدمة غير مفعلة حاليًا.</div>`);
 window.showOffers=()=>{view='packages';render();setTimeout(()=>{const s=document.getElementById('packageSearch');if(s)s.focus()},0);closeDrawer()}
-window.showNotifications=()=>openModal(`<h2>الإشعارات</h2><div class="card"><strong>مرحبًا بك في بيوكير</strong><p class="muted">هذه إشعارات تجريبية داخل التطبيق.</p></div>`)
-window.showSupport=()=>openModal(`<h2>المساعدة والخصوصية</h2><div class="card"><h3>الدعم والتواصل</h3><p class="muted">الاستشارات عبر واتساب متاحة للرد خلال 24–72 ساعة. سياسة الخصوصية والتواصل الفعلي تفعّل عند إطلاق النسخة الإنتاجية.</p></div>`)
-window.showAbout=()=>openModal(`<h2>حول التطبيق</h2><p class="muted">Biocare Medical Laboratories — واجهة PWA تجريبية لمختبرات بيوكير الطبية.</p>`)
-window.showTestimonials=()=>openModal(`<h2>شهادات العملاء</h2><div class="card"><strong>★★★★★</strong><p class="muted">شهادة تجريبية لأغراض تصميم الواجهة فقط.</p></div>`)
+window.showNotifications=()=>openModal(`<h2>الإشعارات</h2><div class="card"><p class="muted">لا توجد إشعارات جديدة.</p></div>`)
+window.showSupport=()=>openModal(`<h2>المساعدة والخصوصية</h2><div class="card"><h3>الدعم والتواصل</h3><p class="muted">للدعم والاستشارات يمكن التواصل عبر واتساب. يتم الرد عادة خلال 24–72 ساعة.</p><button class="secondary" onclick="openWhatsApp('السلام عليكم، أرغب بالتواصل مع مختبرات بيوكير الطبية.')">تواصل عبر واتساب</button></div>`)
+window.showAbout=()=>openModal(`<h2>حول التطبيق</h2><p class="muted">Biocare Medical Laboratories — تطبيق مختبرات بيوكير الطبية لاستعراض التحاليل والباقات والخدمات.</p>`)
+window.showTestimonials=()=>openModal(`<h2>شهادات العملاء</h2><div class="card"><p class="muted">سيتم عرض تقييمات العملاء المعتمدة هنا.</p></div>`)
 window.showJobs=()=>openModal(`<h2>وظائف</h2><p class="muted">سيتم عرض الوظائف المتاحة هنا عند ربط لوحة الإدارة.</p>`)
-window.showBlogs=()=>openModal(`<h2>المدونات</h2><div class="card"><h3>كيف تستعد للتحليل؟</h3><p class="muted">مقال تجريبي قصير.</p></div>`)
-window.logout=()=>{session=null;save();closeDrawer();go('home')}
-window.setLanguage=()=>openModal(`<h2>اللغة</h2><div class="card"><strong>العربية</strong><p class="muted">اللغة الافتراضية الحالية.</p></div><div class="card"><strong>English</strong><p class="muted">قيد التجهيز للنسخة الإنتاجية.</p></div>`)
+window.showBlogs=()=>openModal(`<h2>المدونات</h2><div class="card"><p class="muted">سيتم نشر المحتوى التوعوي المعتمد هنا.</p></div>`)
+window.logout=()=>{closeDrawer();go('home')}
+window.setLanguage=()=>openModal(`<h2>اللغة</h2><div class="card"><strong>العربية</strong><p class="muted">اللغة الافتراضية الحالية.</p></div><div class="card"><strong>English</strong><p class="muted">قيد التجهيز.</p></div>`)
 window.appPreferences=()=>openModal(`<h2>تفضيل التطبيق</h2><p class="muted">إعدادات الإشعارات والمظهر وحجم الخط ستظهر هنا.</p>`)
 
 const menuGroups=[

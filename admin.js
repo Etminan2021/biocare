@@ -1,2 +1,8 @@
-const bookings=JSON.parse(localStorage.getItem('biocare_bookings')||'[]'), consults=JSON.parse(localStorage.getItem('biocare_consults')||'[]'), refills=JSON.parse(localStorage.getItem('biocare_refills')||'[]');
-document.getElementById('admin').innerHTML=`<div class="kpis"><div class="kpi"><strong>${bookings.length}</strong>حجوزات</div><div class="kpi"><strong>${consults.length}</strong>استشارات</div><div class="kpi"><strong>${refills.length}</strong>طلبات إعادة صرف</div></div><section class="section"><div class="section-head"><h2>الحجوزات المحلية</h2></div><div class="list">${bookings.map(b=>`<div class="card"><strong>${b.branch||''}</strong><div class="muted">${b.date||''} — ${b.time||''}</div></div>`).join('')||'لا توجد حجوزات'}</div></section>`;
+document.getElementById('admin').innerHTML=`
+<section class="section">
+  <div class="section-head"><h2>لوحة الإدارة</h2></div>
+  <div class="card">
+    <h3>غير مفعلة على الموقع العام</h3>
+    <p class="muted">تم إيقاف لوحة البيانات المحلية التجريبية. ستتوفر لوحة الإدارة بعد ربط نظام دخول آمن وقاعدة بيانات خلفية.</p>
+  </div>
+</section>`;

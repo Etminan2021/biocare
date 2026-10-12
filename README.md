@@ -23,3 +23,17 @@
 
 
 V6: تحديث أسعار التحاليل من الملف المرفق (509 صف إنجليزي + 148 صف عربي)، الباقات 100 مطابقة. الأسعار القديمة للتحاليل غير المذكورة في الملف بقيت كما كانت ويجب مراجعتها قبل اعتمادها تجارياً. لا توجد وظائف مرضى حقيقية أو LIS.
+
+
+## V7 Production-safe
+- Removed demo patient login, demo results, demo bookings, demo chat and demo prescriptions from the public flow.
+- Cleans previously saved local demo patient data once.
+- Keeps test/package catalog and prices.
+- Adds WhatsApp handoff for selected tests/packages and consultations.
+- Normalizes Profile/Profiles labels to Arabic in the UI.
+- Public admin demo data view disabled until secure backend/authentication is connected.
+
+
+## V8
+- App icon changed to the official Biocare B/drop logo.
+- Added floating instant-chat button linked to WhatsApp +966 56 766 9779.
