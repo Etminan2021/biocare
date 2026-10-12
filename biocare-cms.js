@@ -17,7 +17,18 @@ function assetUrl(u){
  return s;
 }
 function waNumber(){return String(settings.whatsapp_number||'966567669779').replace(/[^\d]/g,'')}
-function media(i){const u=assetUrl(i.media_url);if(!u)return'';if(i.kind==='video'){const yt=u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([^&?/]+)/);if(yt)return `<iframe src="https://www.youtube.com/embed/${encodeURIComponent(yt[1])}" title="${esc(i.title||'فيديو')}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;return `<video controls playsinline preload="metadata" src="${u}"></video>`}return `<img src="${u}" alt="${esc(i.title||'إعلان')}">`}
+function media(i){
+ const fallback='./biocare-home-lab-banner.png';
+ const rawFallback='https://raw.githubusercontent.com/Etminan2021/biocare/main/biocare-home-lab-banner.png';
+ const u=assetUrl(i.media_url)||(i.kind==='banner'?fallback:'');
+ if(!u)return'';
+ if(i.kind==='video'){
+   const yt=u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([^&?/]+)/);
+   if(yt)return `<iframe src="https://www.youtube.com/embed/${encodeURIComponent(yt[1])}" title="${esc(i.title||'فيديو')}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+   return `<video controls playsinline preload="metadata" src="${u}"></video>`;
+ }
+ return `<img src="${u}" alt="${esc(i.title||'إعلان')}" onerror="if(!this.dataset.bcFallback){this.dataset.bcFallback='1';this.src='${rawFallback}'}else{this.style.display='none'}">`;
+}
 function applyCatalog(overrides,custom){
  const cat=window.BIOCARE_CATALOG;if(!cat)return;
  for(const x of custom||[]){if(!x.active)continue;const arr=x.item_type==='test'?cat.tests:cat.packages,idKey=x.item_type==='test'?'code':'id';if(arr.some(y=>String(y[idKey])===String(x.item_id)))continue;const obj=x.item_type==='test'?{code:x.item_id,name:x.name,en:x.en_name||x.name,category:x.category||'أخرى',price:x.price,note:x.note||'',official:false}:{id:x.item_id,name:x.name,category:x.category||'أخرى',price:x.price,count:Array.isArray(x.components)?x.components.length:0,fasting:x.fasting||'',description:x.description||'',components:x.components||[]};arr.push(obj)}
@@ -85,6 +96,6 @@ async function load(){
 const style=document.createElement('style');style.textContent=`
 #bcCmsTicker{background:#155b3f;color:#fff;overflow:hidden;white-space:nowrap;padding:8px 0;font-weight:800}#bcMaintenance{background:#fff1c9;color:#6e5200;padding:9px 14px;text-align:center;font-weight:800}
 .bc-cms-ticker-track{display:inline-flex;gap:18px;align-items:center;padding-inline:20px;animation:bcTicker 20s linear infinite}.bc-cms-ticker-track .sep{opacity:.55}@keyframes bcTicker{from{transform:translateX(-10%)}to{transform:translateX(100%)}}
-.bc-cms-banners{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;margin:14px;scrollbar-width:none}.bc-cms-banners::-webkit-scrollbar{display:none}.bc-cms-banner{position:relative;flex:0 0 100%;min-height:180px;border-radius:22px;overflow:hidden;background:#eef5f1;scroll-snap-align:start}.bc-cms-banner img,.bc-cms-banner video{width:100%;height:220px;object-fit:cover;display:block}.bc-cms-banner a{color:inherit;text-decoration:none}.bc-cms-copy{position:absolute;inset:auto 0 0;padding:34px 18px 16px;background:linear-gradient(transparent,rgba(0,0,0,.72));color:#fff}.bc-cms-copy h3{margin:0 0 5px;font-size:24px}.bc-cms-copy p{margin:0 0 8px}.bc-cms-btn{display:inline-block;background:#fff;color:#155b3f;padding:8px 12px;border-radius:10px;font-weight:800}.bc-cms-video-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}.bc-cms-video-grid video,.bc-cms-video-grid iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:12px}.bc-cms-social{display:flex;gap:8px;flex-wrap:wrap}.bc-cms-social a{background:#eef6f2;color:#155b3f;text-decoration:none;padding:10px 14px;border-radius:12px;font-weight:800}
+.bc-cms-banners{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;margin:14px;scrollbar-width:none}.bc-cms-banners::-webkit-scrollbar{display:none}.bc-cms-banner{position:relative;flex:0 0 100%;min-height:180px;border-radius:22px;overflow:hidden;background:#eef5f1;scroll-snap-align:start}.bc-cms-banner img,.bc-cms-banner video{width:100%;height:auto;min-height:180px;max-height:300px;object-fit:cover;display:block}.bc-cms-banner a{color:inherit;text-decoration:none}.bc-cms-copy{position:absolute;inset:auto 0 0;padding:34px 18px 16px;background:linear-gradient(transparent,rgba(0,0,0,.72));color:#fff}.bc-cms-copy h3{margin:0 0 5px;font-size:24px}.bc-cms-copy p{margin:0 0 8px}.bc-cms-btn{display:inline-block;background:#fff;color:#155b3f;padding:8px 12px;border-radius:10px;font-weight:800}.bc-cms-video-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}.bc-cms-video-grid video,.bc-cms-video-grid iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:12px}.bc-cms-social{display:flex;gap:8px;flex-wrap:wrap}.bc-cms-social a{background:#eef6f2;color:#155b3f;text-decoration:none;padding:10px 14px;border-radius:12px;font-weight:800}
 `;document.head.appendChild(style);load();
 })();
