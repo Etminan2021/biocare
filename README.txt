@@ -1,11 +1,8 @@
-Biocare Cloud Orders + Notifications - المرحلة الأولى
+Biocare v2 — إنشاء طلبات مبدئية برقم تتبع
 
-1. افتح Supabase > SQL Editor وشغّل محتوى supabase_setup.sql.
-2. من Supabase > Project Settings > Data API، تأكد أن الجداول الجديدة ضمن الـ exposed schema (public).
-3. ارفع الملفات الثلاثة إلى جذر مستودع GitHub: index.html و sw.js و biocare-cloud.js.
-4. احتفظ بملفي services.js و saleem.js الموجودين مسبقًا ولا تحذفهما.
-5. افتح التطبيق وسجل الدخول. سترى "طلباتي" و "الإشعارات". لن تظهر بيانات حتى ينشئ الخادم طلبات وإشعارات حقيقية.
+1) Supabase SQL Editor: شغّل supabase_orders_v2.sql مرة واحدة.
+2) GitHub upload/main: ارفع index.html و biocare-cloud.js و sw.js واستبدل النسخ السابقة.
+3) افتح بيوكير وسجل الدخول وأضف تحليلًا للسلة ثم اختر إنشاء طلب برقم تتبع.
+4) من طلباتي تحقق من ظهور الطلب وحالة تم استلام الطلب.
 
-مهم: الإشعارات على شاشة القفل تحتاج أيضًا VAPID public key في window.BIOCARE_VAPID_PUBLIC_KEY، وخادم إرسال Web Push آمن. لم يتم نشر خادم إرسال بعد. زر تفعيل الإشعارات يشرح عدم اكتمال الإعداد ولا يدعي تفعيله.
-
-لا تضف service_role أو VAPID private key في ملفات GitHub العامة. لا تضع نتائج التحاليل أو تشخيصات حساسة في نص إشعار شاشة القفل.
+ملاحظة: إرسال واتساب خطوة منفصلة لتأكيد تفاصيل الطلب. لا يوجد دفع أو اعتماد نتائج أو إرسال Push حقيقي في هذه النسخة.
