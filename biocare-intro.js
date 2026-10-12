@@ -4,7 +4,7 @@
 const PROJECT='jlibhpavbqfeegsehekm';
 const API=`https://${PROJECT}.supabase.co`;
 // Set to the existing project's PUBLIC anon/publishable key (never service_role).
-const KEY=window.BIOCARE_SUPABASE_ANON_KEY || window.BIOCARE_SUPABASE_PUBLISHABLE_KEY || '';
+const KEY='sb_publishable_XVOmCPOiqdUlG-pOPhrQ0g_rIV0R6tK';
 const FALLBACK='ScreenRecording_10-12-2026 20-39-47_1.mov';
 const el=document.createElement('div');el.id='biocareIntro';el.setAttribute('aria-label','فيديو افتتاح التطبيق');
 el.innerHTML='<video playsinline webkit-playsinline muted autoplay preload="auto" aria-label="إعلان بيوكير"></video><button type="button" class="biocare-intro-skip">تخطي ✕</button>';
