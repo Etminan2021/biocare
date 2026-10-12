@@ -1,24 +1,37 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>بيوكير | فريق الزيارات</title><style>body{font:16px system-ui;background:#f5f8f6;color:#163b2d;margin:0;padding:22px}main{max-width:540px;margin:auto}.card{background:white;border:1px solid #dce8e1;border-radius:18px;padding:20px;margin:16px 0}input,button,select{font:inherit;padding:13px;border-radius:10px;margin:7px 0;box-sizing:border-box;width:100%}button{background:#176744;color:white;border:0;font-weight:bold}button:disabled{opacity:.5}input{border:1px solid #cadbd1}small{color:#526b5e}#status{white-space:pre-wrap}h1{font-size:24px}</style></head><body><main><h1>بيوكير | فريق الزيارات المنزلية</h1><div class="card"><p>هذه الصفحة لموظفي الزيارات المعتمدين فقط. يتم إرسال الموقع أثناء فتح الصفحة وتفعيل المشاركة.</p><input id="email" type="email" placeholder="البريد الإلكتروني"><input id="pass" type="password" placeholder="كلمة المرور"><button id="login">تسجيل الدخول</button><button id="logout" hidden>تسجيل الخروج</button></div><div id="work" class="card" hidden><label>الزيارة المسندة إليك</label><select id="orders"></select><div id="details" style="margin:12px 0"></div><button id="start">بدء مشاركة موقعي</button><button id="stop" disabled>إيقاف مشاركة الموقع</button><p><small>يجب إبقاء الصفحة مفتوحة والسماح بالموقع. عند قفل الجهاز قد يتوقف تحديث الموقع. لا يوجد تتبع في الخلفية.</small></p></div><div class="card" id="status">سجّل الدخول للبدء.</div></main><script type="module">
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>بيوكير | فريق الزيارات</title><style>body{font:16px system-ui;background:#f5f8f6;color:#163b2d;margin:0;padding:22px}main{max-width:540px;margin:auto}.card{background:white;border:1px solid #dce8e1;border-radius:18px;padding:20px;margin:16px 0}input,button,select{font:inherit;padding:13px;border-radius:10px;margin:7px 0;box-sizing:border-box;width:100%}button{background:#176744;color:white;border:0;font-weight:bold}button:disabled{opacity:.5}input{border:1px solid #cadbd1}small{color:#526b5e}#status{white-space:pre-wrap}h1{font-size:24px}.who{background:#eef7f2;border-radius:10px;padding:10px;margin:8px 0;word-break:break-word}</style></head><body><main><h1>بيوكير | فريق الزيارات المنزلية</h1><div class="card"><p>هذه الصفحة لموظفي الزيارات المعتمدين فقط. يتم إرسال الموقع أثناء فتح الصفحة وتفعيل المشاركة.</p><div id="who" class="who" hidden></div><input id="email" type="email" autocomplete="username" placeholder="البريد الإلكتروني"><input id="pass" type="password" autocomplete="current-password" placeholder="كلمة المرور"><button id="login">تسجيل الدخول</button><button id="logout" hidden>تسجيل الخروج</button></div><div id="work" class="card" hidden><label>الزيارة المسندة إليك</label><select id="orders"></select><div id="details" style="margin:12px 0"></div><button id="start">بدء مشاركة موقعي</button><button id="stop" disabled>إيقاف مشاركة الموقع</button><p><small>يجب إبقاء الصفحة مفتوحة والسماح بالموقع. عند قفل الجهاز قد يتوقف تحديث الموقع. لا يوجد تتبع في الخلفية.</small></p></div><div class="card" id="status">سجّل الدخول للبدء.</div></main><script type="module">
 import{createClient}from'https://esm.sh/@supabase/supabase-js@2';
-const db=createClient('https://jlibhpavbqfeegsehekm.supabase.co','sb_publishable_XVOmCPOiqdUlG-pOPhrQ0g_rIV0R6tK');
+const db=createClient('https://jlibhpavbqfeegsehekm.supabase.co','sb_publishable_XVOmCPOiqdUlG-pOPhrQ0g_rIV0R6tK',{
+ auth:{storageKey:'biocare-field-staff-auth-v1',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+});
 const $=id=>document.getElementById(id);
 let watch=null,latest=null,timer=null,busy=false;
 const msg=t=>$('status').textContent=t;
+function loginState(user){
+ $('logout').hidden=!user;
+ $('login').hidden=!!user;
+ $('email').hidden=!!user;
+ $('pass').hidden=!!user;
+ $('work').hidden=!user;
+ $('who').hidden=!user;
+ $('who').textContent=user?'مسجل الدخول: '+(user.email||'حساب موظف'):'';
+}
 async function load(){
- const{data:{user}}=await db.auth.getUser();$('logout').hidden=!user;$('login').disabled=!!user;$('work').hidden=!user;
- if(!user){msg('سجّل الدخول للبدء.');return}
- const{data,error}=await db.rpc('care_staff_orders');if(error){msg('تعذر تحميل الزيارات. تأكد من تشغيل SQL.');return}
+ const{data:{user}}=await db.auth.getUser();loginState(user);
+ if(!user){msg('سجّل الدخول بحساب موظف الزيارات المنزلية.');return}
+ const{data,error}=await db.rpc('care_staff_orders');
+ if(error){msg('تم تسجيل الدخول، لكن تعذر تحميل الزيارات: '+(error.message||'خطأ غير معروف'));return}
  const select=$('orders');select.replaceChildren();
  for(const o of data||[]){const op=document.createElement('option');op.value=o.order_number;op.textContent=o.order_number+' — '+o.service_name;select.appendChild(op)}
- $('start').disabled=!data?.length;msg(data?.length?'اختر الزيارة ثم اضغط بدء مشاركة موقعي.':'لا توجد زيارات مسندة لحسابك.');if(data?.length)loadDetails();
+ $('start').disabled=!data?.length;
+ msg(data?.length?'تم تسجيل الدخول بنجاح. اختر الزيارة ثم اضغط بدء مشاركة موقعي.':'تم تسجيل الدخول، لكن لا توجد زيارات مسندة لهذا الحساب.');
+ if(data?.length)loadDetails();
 }
-
 async function loadDetails(){
  const order=$('orders').value,box=$('details');
  if(!order){box.textContent='';return}
  box.textContent='جارٍ تحميل تفاصيل الزيارة...';
  const{data,error}=await db.rpc('care_staff_home_details',{p_order_number:order});
- if(error){box.textContent='تعذر تحميل تفاصيل الزيارة.';return}
+ if(error){box.textContent='تعذر تحميل تفاصيل الزيارة: '+(error.message||'');return}
  const d=data?.[0];if(!d){box.textContent='لا توجد تفاصيل متاحة.';return}
  box.replaceChildren();
  const p=document.createElement('p');
@@ -28,7 +41,6 @@ async function loadDetails(){
    const a=document.createElement('a');a.href=`https://www.google.com/maps?q=${d.lat},${d.lon}`;a.target='_blank';a.rel='noopener';a.textContent='📍 فتح موقع العميل على الخريطة';box.appendChild(a);
  }
 }
-
 async function publish(active){
  if(busy)return;busy=true;
  try{
@@ -40,7 +52,12 @@ async function publish(active){
   msg(active?'مشاركة الموقع نشطة. آخر إرسال: '+new Date().toLocaleTimeString('ar-SA'):'تم إيقاف مشاركة الموقع.');
  }catch(e){msg('تعذر تحديث الموقع: '+(e.message||'خطأ غير معروف'))}finally{busy=false}
 }
-async function stop(){if(watch!==null)navigator.geolocation.clearWatch(watch);watch=null;clearInterval(timer);timer=null;await publish(false);$('start').disabled=false;$('stop').disabled=true;$('orders').disabled=false}
+async function stop(){
+ if(watch!==null)navigator.geolocation.clearWatch(watch);watch=null;
+ clearInterval(timer);timer=null;
+ if($('orders').value)await publish(false);
+ $('start').disabled=false;$('stop').disabled=true;$('orders').disabled=false;
+}
 $('orders').onchange=loadDetails;
 $('start').onclick=()=>{
  if(!navigator.geolocation){msg('الموقع غير مدعوم على هذا الجهاز.');return}
@@ -49,8 +66,21 @@ $('start').onclick=()=>{
  timer=setInterval(()=>{if(latest)publish(true)},30000);
 };
 $('stop').onclick=stop;
-$('login').onclick=async()=>{const{error}=await db.auth.signInWithPassword({email:$('email').value,password:$('pass').value});if(error)msg('تعذر تسجيل الدخول.');else load()};
-$('logout').onclick=async()=>{await stop();await db.auth.signOut();load()};
-window.addEventListener('pagehide',()=>{if(watch!==null){navigator.geolocation.clearWatch(watch);/* no guaranteed background request */}});
+$('login').onclick=async()=>{
+ const email=$('email').value.trim(),password=$('pass').value;
+ if(!email||!password){msg('أدخل البريد الإلكتروني وكلمة المرور.');return}
+ $('login').disabled=true;msg('جارٍ تسجيل الدخول...');
+ const{data,error}=await db.auth.signInWithPassword({email,password});
+ $('login').disabled=false;
+ if(error){
+   const m=String(error.message||'');
+   msg(m.toLowerCase().includes('invalid login credentials')?'بيانات الدخول غير صحيحة. تأكد من بريد الموظف وكلمة المرور.':'تعذر تسجيل الدخول: '+m);
+   return;
+ }
+ if(!data?.user){msg('تعذر تسجيل الدخول.');return}
+ await load();
+};
+$('logout').onclick=async()=>{await stop();await db.auth.signOut();loginState(null);msg('تم تسجيل الخروج.');};
+window.addEventListener('pagehide',()=>{if(watch!==null)navigator.geolocation.clearWatch(watch)});
 load();
 </script></body></html>
