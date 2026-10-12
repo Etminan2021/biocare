@@ -42,11 +42,15 @@
 <aside class="drawer" id="drawer" aria-hidden="true"><div class="drawer-head"><img src="logo-full.png" alt="Biocare"><button id="drawerClose" aria-label="إغلاق">✕</button></div><div class="drawer-scroll" id="drawerMenu"></div></aside>
 <div class="modal hidden" id="modal"><div class="sheet"><button id="modalClose" class="sheet-close" aria-label="إغلاق">✕</button><div id="modalBody"></div></div></div>
 <script src="catalog.js?v=9"></script>
+<script src="catalog-medical-details.js?v=3"></script>
 <script>
 window.BIOCARE_CATALOG_READY.then(()=>{
   const s=document.createElement("script");
   s.src="app.js?v=9";
   s.onload=()=>{
+    const details=document.createElement("script");
+    details.src="catalog-details-ui.js?v=3";
+    document.body.appendChild(details);
     const p=document.createElement("script");
     p.src="profile.js?v=2";
     p.onload=()=>{
