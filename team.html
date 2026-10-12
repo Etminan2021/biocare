@@ -1,0 +1,38 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>بيوكير | فريق الزيارات</title><style>body{font:16px system-ui;background:#f5f8f6;color:#163b2d;margin:0;padding:22px}main{max-width:540px;margin:auto}.card{background:white;border:1px solid #dce8e1;border-radius:18px;padding:20px;margin:16px 0}input,button,select{font:inherit;padding:13px;border-radius:10px;margin:7px 0;box-sizing:border-box;width:100%}button{background:#176744;color:white;border:0;font-weight:bold}button:disabled{opacity:.5}input{border:1px solid #cadbd1}small{color:#526b5e}#status{white-space:pre-wrap}h1{font-size:24px}</style></head><body><main><h1>بيوكير | فريق الزيارات المنزلية</h1><div class="card"><p>هذه الصفحة لموظفي الزيارات المعتمدين فقط. يتم إرسال الموقع أثناء فتح الصفحة وتفعيل المشاركة.</p><input id="email" type="email" placeholder="البريد الإلكتروني"><input id="pass" type="password" placeholder="كلمة المرور"><button id="login">تسجيل الدخول</button><button id="logout" hidden>تسجيل الخروج</button></div><div id="work" class="card" hidden><label>الزيارة المسندة إليك</label><select id="orders"></select><button id="start">بدء مشاركة موقعي</button><button id="stop" disabled>إيقاف مشاركة الموقع</button><p><small>يجب إبقاء الصفحة مفتوحة والسماح بالموقع. عند قفل الجهاز قد يتوقف تحديث الموقع. لا يوجد تتبع في الخلفية.</small></p></div><div class="card" id="status">سجّل الدخول للبدء.</div></main><script type="module">
+import{createClient}from'https://esm.sh/@supabase/supabase-js@2';
+const db=createClient('https://jlibhpavbqfeegsehekm.supabase.co','sb_publishable_XVOmCPOiqdUlG-pOPhrQ0g_rIV0R6tK');
+const $=id=>document.getElementById(id);
+let watch=null,latest=null,timer=null,busy=false;
+const msg=t=>$('status').textContent=t;
+async function load(){
+ const{data:{user}}=await db.auth.getUser();$('logout').hidden=!user;$('login').disabled=!!user;$('work').hidden=!user;
+ if(!user){msg('سجّل الدخول للبدء.');return}
+ const{data,error}=await db.rpc('care_staff_orders');if(error){msg('تعذر تحميل الزيارات. تأكد من تشغيل SQL.');return}
+ const select=$('orders');select.replaceChildren();
+ for(const o of data||[]){const op=document.createElement('option');op.value=o.order_number;op.textContent=o.order_number+' — '+o.service_name;select.appendChild(op)}
+ $('start').disabled=!data?.length;msg(data?.length?'اختر الزيارة ثم اضغط بدء مشاركة موقعي.':'لا توجد زيارات مسندة لحسابك.');
+}
+async function publish(active){
+ if(busy)return;busy=true;
+ try{
+  const order=$('orders').value;if(!order)return;
+  const p=latest?.coords;
+  if(active&&!p){msg('جارٍ تحديد الموقع...');return}
+  const{error}=await db.rpc('care_staff_location',{p_order_number:order,p_lat:p?.latitude??null,p_lon:p?.longitude??null,p_active:active});
+  if(error)throw error;
+  msg(active?'مشاركة الموقع نشطة. آخر إرسال: '+new Date().toLocaleTimeString('ar-SA'):'تم إيقاف مشاركة الموقع.');
+ }catch(e){msg('تعذر تحديث الموقع: '+(e.message||'خطأ غير معروف'))}finally{busy=false}
+}
+async function stop(){if(watch!==null)navigator.geolocation.clearWatch(watch);watch=null;clearInterval(timer);timer=null;await publish(false);$('start').disabled=false;$('stop').disabled=true;$('orders').disabled=false}
+$('start').onclick=()=>{
+ if(!navigator.geolocation){msg('الموقع غير مدعوم على هذا الجهاز.');return}
+ $('orders').disabled=true;$('start').disabled=true;$('stop').disabled=false;
+ watch=navigator.geolocation.watchPosition(async p=>{latest=p;await publish(true)},e=>msg('تعذر الوصول للموقع: '+e.message),{enableHighAccuracy:true,maximumAge:0,timeout:15000});
+ timer=setInterval(()=>{if(latest)publish(true)},30000);
+};
+$('stop').onclick=stop;
+$('login').onclick=async()=>{const{error}=await db.auth.signInWithPassword({email:$('email').value,password:$('pass').value});if(error)msg('تعذر تسجيل الدخول.');else load()};
+$('logout').onclick=async()=>{await stop();await db.auth.signOut();load()};
+window.addEventListener('pagehide',()=>{if(watch!==null){navigator.geolocation.clearWatch(watch);/* no guaranteed background request */}});
+load();
+</script></body></html>
