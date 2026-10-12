@@ -53,7 +53,7 @@ window.BIOCARE_CATALOG_READY.then(()=>{
       a.onload=()=>{
         const x=document.createElement("script");
         x.src="services.js?v=1";
-        x.onload=()=>{if(typeof render==='function')render()};
+        x.onload=()=>{const cloud=document.createElement("script");cloud.src="biocare-cloud.js?v=1";document.body.appendChild(cloud)};
         document.body.appendChild(x);
       };
       document.body.appendChild(a);
