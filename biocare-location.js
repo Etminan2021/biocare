@@ -43,18 +43,53 @@ window.biocareClearLocation=()=>{customerPosition=null;const el=document.getElem
 const oldRequest=window.biocareRequest;
 if(typeof oldRequest==='function')window.biocareRequest=function(type){const r=oldRequest.apply(this,arguments);if(homeTypes.has(type))insertLocation();return r};
 const oldSend=window.biocareSendRequest;
-if(typeof oldSend==='function')window.biocareSendRequest=function(e,type){
- if(!customerPosition||!homeTypes.has(type))return oldSend.apply(this,arguments);
+if(typeof oldSend==='function')window.biocareSendRequest=async function(e,type){
+ if(!homeTypes.has(type))return oldSend.apply(this,arguments);
  e.preventDefault();
+ const form=document.getElementById('biocareServiceForm');
  const area=document.getElementById('bcArea')?.value.trim();
  const date=document.getElementById('bcDate')?.value;
  const period=document.getElementById('bcPeriod')?.value;
  const phone=document.getElementById('bcPhone')?.value.trim();
  if(!area||!date||!(/^\+?[0-9\s-]{8,20}$/.test(phone||''))){alert('يرجى إدخال المنطقة والتاريخ ورقم جوال صحيح');return}
  const names={doctor:'طبيب عام منزلي',nursing:'تمريض منزلي',physio:'علاج طبيعي منزلي',labs:'تحاليل منزلية'};
- const url=`https://www.google.com/maps?q=${customerPosition.lat},${customerPosition.lon}`;
- const msg=`السلام عليكم، أرغب في الاستفسار عن توفر خدمة ${names[type]} من بيوكير.\nالمنطقة: ${area}\nالتاريخ المفضل: ${date}\nالوقت: ${period}\nجوال التواصل: ${phone}\nموقع المنزل (بموافقتي): ${url}\nأرجو تأكيد التوفر والسعر والموعد.`;
- window.open('https://wa.me/966567669779?text='+encodeURIComponent(msg),'_blank','noopener');
+ const dbTypes={doctor:'doctor',nursing:'nursing',physio:'physio',labs:'home_lab'};
+ const btn=form?.querySelector('button[type="submit"],.primary');
+ if(btn){btn.disabled=true;btn.textContent='جارٍ تسجيل الطلب...'}
+ try{
+   if(typeof initAuth!=='function')throw Error('تعذر تهيئة الحساب');
+   await initAuth();
+   if(!authUser||!supabaseClient)throw Error('LOGIN_REQUIRED');
+   const params={
+     p_service_type:dbTypes[type],
+     p_service_name:names[type],
+     p_area:area,
+     p_requested_date:date,
+     p_preferred_period:period,
+     p_phone:phone,
+     p_lat:customerPosition?.lat??null,
+     p_lon:customerPosition?.lon??null
+   };
+   const {data,error}=await supabaseClient.rpc('care_create_home_request',params);
+   if(error)throw error;
+   if(!data||typeof data!=='string')throw Error('لم يتم إرجاع رقم الطلب');
+   const mapUrl=customerPosition?`https://www.google.com/maps?q=${customerPosition.lat},${customerPosition.lon}`:'';
+   const wa=`السلام عليكم، تم إنشاء طلب ${names[type]} في بيوكير.\nرقم الطلب: ${data}\nالمنطقة: ${area}\nالتاريخ المفضل: ${date}\nالوقت: ${period}\nجوال التواصل: ${phone}${mapUrl?`\nموقع المنزل: ${mapUrl}`:''}`;
+   const waUrl='https://wa.me/966567669779?text='+encodeURIComponent(wa);
+   openModal(`<div class="bio-care-shell"><h2>✅ تم تسجيل طلب الزيارة</h2>
+     <div class="bio-care-notice"><strong>رقم الطلب: ${esc(data)}</strong><p>الحالة: تم استلام الطلب</p></div>
+     <p class="muted">يمكنك متابعة الطلب من «طلباتي». بعد إسناد فريق الزيارة وبدء مشاركة موقعه سيظهر زر التتبع على الخريطة.</p>
+     <div class="bio-care-actions"><button class="primary" onclick="biocareMyOrders()">طلباتي</button><a class="secondary" style="display:inline-block;text-decoration:none;text-align:center;padding:11px 14px;border-radius:11px" href="${waUrl}" target="_blank" rel="noopener">إرسال التفاصيل عبر واتساب (اختياري)</a></div></div>`);
+ }catch(err){
+   if(err?.message==='LOGIN_REQUIRED'||String(err?.message||'').includes('تسجيل الدخول')){
+     alert('لتسجيل الزيارة وتتبع الفريق، سجّل الدخول إلى حسابك في بيوكير أولًا.');
+   }else{
+     console.error(err);
+     alert('تعذر تسجيل طلب الزيارة. تأكد من تشغيل تحديث قاعدة البيانات ثم حاول مرة أخرى.');
+   }
+ }finally{
+   if(btn){btn.disabled=false;btn.textContent='إرسال طلب التوفر'}
+ }
 };
 // Read-only live location adapter. Must be served from secure authenticated backend;
 // no public tracking links and no simulated provider coordinates.

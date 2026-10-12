@@ -53,7 +53,7 @@ window.BIOCARE_CATALOG_READY.then(()=>{
       a.onload=()=>{
         const x=document.createElement("script");
         x.src="services.js?v=1";
-        x.onload=()=>{const cloud=document.createElement("script");cloud.src="biocare-cloud.js?v=2";cloud.onload=()=>{const geo=document.createElement("script");geo.src="biocare-location.js?v=1";geo.onload=()=>{const live=document.createElement("script");live.src="biocare-team-provider.js?v=1";document.body.appendChild(live)};document.body.appendChild(geo)};document.body.appendChild(cloud)};
+        x.onload=()=>{const cloud=document.createElement("script");cloud.src="biocare-cloud.js?v=2";cloud.onload=()=>{const geo=document.createElement("script");geo.src="biocare-location.js?v=2";geo.onload=()=>{const live=document.createElement("script");live.src="biocare-team-provider.js?v=1";document.body.appendChild(live)};document.body.appendChild(geo)};document.body.appendChild(cloud)};
         document.body.appendChild(x);
       };
       document.body.appendChild(a);
