@@ -289,9 +289,10 @@ function results(){
  <div class="card"><h3>النتائج الإلكترونية</h3><p class="muted">سيتم تفعيل الدخول الآمن للنتائج بعد اكتمال الربط مع نظام المختبر. لا يتم عرض أي نتائج تجريبية في النسخة الحالية.</p></div></section>`;
 }
 function profile(){
- return `<section class="section"><div class="section-head"><h2 class="under">حسابي</h2></div>
- <div class="card"><h3>حساب العميل</h3><p class="muted">تسجيل الدخول وإدارة أفراد العائلة والمواعيد ستُفعّل بعد ربط نظام التحقق وقاعدة البيانات الآمنة.</p></div></section>`;
+  if(!authUser) return `<section class="section"><div class="section-head"><h2 class="under">حسابي</h2></div><div class="card"><h3>حساب العميل</h3><p class="muted">سجّل الدخول بالبريد الإلكتروني للوصول إلى حسابك.</p><button class="primary" onclick="openLogin()">تسجيل الدخول / إنشاء حساب</button></div></section>`;
+  return `<section class="section"><div class="section-head"><h2 class="under">حسابي</h2></div><div class="card"><h3>مرحبًا بك</h3><p class="muted">البريد الإلكتروني: ${esc(authUser.email||'')}</p><p class="micro-note">النتائج والمواعيد وأفراد العائلة غير متاحة حتى اكتمال الربط الآمن مع أنظمة المختبر.</p><button class="secondary" onclick="logout()">تسجيل الخروج</button></div></section>`;
 }
+
 function render(){
  document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
  if(view==='home') app.innerHTML=home();
@@ -323,8 +324,79 @@ window.sendCartWhatsApp=()=>{
  const msg=['السلام عليكم، أرغب بالاستفسار عن التحاليل/الباقات التالية:',...lines,'','يرجى تأكيد السعر والمتطلبات قبل الزيارة.'].join('\n');
  openWhatsApp(msg);
 };
-window.openLogin=()=>openModal(`<h2>حساب العميل</h2><div class="notice">تسجيل الدخول الآمن قيد الربط حاليًا، ولن يطلب التطبيق بيانات شخصية حتى يتم تفعيل التحقق الآمن.</div>`);
-window.submitLogin=()=>{};
+// تسجيل الدخول فقط عبر Supabase Auth؛ لا تُخزّن كلمات المرور في localStorage.
+const SUPABASE_URL='https://jlibhpavbqfeegsehekm.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_XVOmCPOiqdUlG-pOPhrQ0g_rIV0R6tK';
+let supabaseClient=null;
+let authUser=null;
+let authInitPromise=null;
+function authMessage(message,isError=false){
+  const el=document.getElementById('authMessage');
+  if(el){el.textContent=message;el.style.color=isError?'#b42318':'#176744'}
+}
+function authErrorMessage(error){
+  const m=String(error?.message||'تعذر إكمال العملية. حاول مجددًا.');
+  if(/invalid login credentials/i.test(m)) return 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+  if(/email not confirmed/i.test(m)) return 'يرجى تأكيد البريد الإلكتروني من الرسالة المرسلة إليك.';
+  if(/user already registered/i.test(m)) return 'هذا البريد مسجّل مسبقًا. اختر تسجيل الدخول.';
+  if(/password should be at least/i.test(m)) return 'كلمة المرور قصيرة جدًا. استخدم 8 أحرف على الأقل.';
+  if(/rate limit|too many requests/i.test(m)) return 'طلبات كثيرة خلال وقت قصير. حاول لاحقًا.';
+  return m;
+}
+async function initAuth(){
+  if(authInitPromise) return authInitPromise;
+  authInitPromise=(async()=>{
+    const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
+    supabaseClient=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+    const {data,error}=await supabaseClient.auth.getUser();
+    if(!error) authUser=data.user||null;
+    supabaseClient.auth.onAuthStateChange((_event,currentSession)=>{
+      authUser=currentSession?.user||null;
+      if(view==='profile')render();
+    });
+    if(view==='profile')render();
+    return supabaseClient;
+  })().catch(error=>{authInitPromise=null;throw error});
+  return authInitPromise;
+}
+window.openLogin=()=>{
+  closeDrawer();
+  openModal(`<h2>حساب العميل</h2><p class="muted">تسجيل الدخول أو إنشاء حساب مجاني بالبريد الإلكتروني.</p>
+    <form id="authForm" onsubmit="submitLogin(event)">
+      <label for="authEmail">البريد الإلكتروني</label><input id="authEmail" type="email" autocomplete="email" required placeholder="name@example.com" style="width:100%;padding:12px;margin:8px 0 14px">
+      <label for="authPassword">كلمة المرور</label><input id="authPassword" type="password" autocomplete="current-password" minlength="8" required placeholder="8 أحرف على الأقل" style="width:100%;padding:12px;margin:8px 0 14px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" type="submit" id="authSignIn">تسجيل الدخول</button><button class="secondary" type="button" onclick="registerAccount()" id="authSignUp">إنشاء حساب</button></div>
+    </form><p id="authMessage" role="status" style="margin-top:14px"></p><p class="micro-note">قد يلزم تأكيد البريد الإلكتروني قبل أول تسجيل دخول. لا تدخل بيانات طبية في هذه الصفحة.</p>`);
+};
+window.submitLogin=async(event)=>{
+  event?.preventDefault();
+  const email=document.getElementById('authEmail')?.value.trim();
+  const password=document.getElementById('authPassword')?.value;
+  if(!email||!password)return authMessage('أدخل البريد الإلكتروني وكلمة المرور.',true);
+  authMessage('جارٍ تسجيل الدخول...');
+  try{
+    const client=await initAuth();
+    const {data,error}=await client.auth.signInWithPassword({email,password});
+    if(error)throw error;
+    authUser=data.user;
+    closeModal();go('profile');toast('تم تسجيل الدخول بنجاح');
+  }catch(error){authMessage(authErrorMessage(error),true)}
+};
+window.registerAccount=async()=>{
+  const email=document.getElementById('authEmail')?.value.trim();
+  const password=document.getElementById('authPassword')?.value;
+  if(!email||!password)return authMessage('أدخل البريد الإلكتروني وكلمة المرور.',true);
+  if(password.length<8)return authMessage('استخدم كلمة مرور من 8 أحرف على الأقل.',true);
+  authMessage('جارٍ إنشاء الحساب...');
+  try{
+    const client=await initAuth();
+    const {data,error}=await client.auth.signUp({email,password,options:{emailRedirectTo:'https://etminan2021.github.io/biocare/'}});
+    if(error)throw error;
+    if(data.session){authUser=data.user;closeModal();go('profile');toast('تم إنشاء الحساب بنجاح')}
+    else authMessage('تم إرسال رسالة تأكيد إن كان البريد مؤهلًا للتسجيل. افتح بريدك واضغط رابط التأكيد، ثم سجّل الدخول.');
+  }catch(error){authMessage(authErrorMessage(error),true)}
+};
+
 window.showFamily=()=>openModal(`<h2>أفراد العائلة</h2><div class="notice">هذه الخدمة ستتوفر بعد تفعيل حساب العميل الآمن.</div>`);
 window.addFamily=()=>{};
 window.removeFamily=()=>{};
@@ -347,7 +419,7 @@ window.showAbout=()=>openModal(`<h2>حول التطبيق</h2><p class="muted">B
 window.showTestimonials=()=>openModal(`<h2>شهادات العملاء</h2><div class="card"><p class="muted">سيتم عرض تقييمات العملاء المعتمدة هنا.</p></div>`)
 window.showJobs=()=>openModal(`<h2>وظائف</h2><p class="muted">سيتم عرض الوظائف المتاحة هنا عند ربط لوحة الإدارة.</p>`)
 window.showBlogs=()=>openModal(`<h2>المدونات</h2><div class="card"><p class="muted">سيتم نشر المحتوى التوعوي المعتمد هنا.</p></div>`)
-window.logout=()=>{closeDrawer();go('home')}
+window.logout=async()=>{try{const client=await initAuth();const {error}=await client.auth.signOut();if(error)throw error;authUser=null;closeDrawer();go('home');toast('تم تسجيل الخروج')}catch(error){toast('تعذر تسجيل الخروج. حاول مجددًا.')}}
 window.setLanguage=()=>openModal(`<h2>اللغة</h2><div class="card"><strong>العربية</strong><p class="muted">اللغة الافتراضية الحالية.</p></div><div class="card"><strong>English</strong><p class="muted">قيد التجهيز.</p></div>`)
 window.appPreferences=()=>openModal(`<h2>تفضيل التطبيق</h2><p class="muted">إعدادات الإشعارات والمظهر وحجم الخط ستظهر هنا.</p>`)
 
@@ -378,5 +450,6 @@ document.getElementById('cartBtn').onclick=()=>go('booking');
 document.querySelectorAll('.nav-item').forEach(b=>b.onclick=()=>go(b.dataset.view));
 
 buildMenu();render();save();
+initAuth().catch(()=>{ /* يبقى عرض الأسعار متاحًا حتى عند تعذر الاتصال بالمصادقة */ });
 setTimeout(()=>document.getElementById('splash')?.classList.add('hide'),650);
 setTimeout(()=>document.getElementById('splash')?.remove(),1050);
