@@ -424,3 +424,214 @@
 
   attach();
 })();
+/* Biocare PayTabs payment */
+(function () {
+  const originalOpenModal = window.openModal;
+
+  window.startBiocarePayment = async function (orderNumber) {
+    const status = document.getElementById("bioPaymentStatus");
+    const button = document.getElementById("bioPaymentButton");
+
+    if (button) button.disabled = true;
+    if (status) status.textContent = "جارٍ تجهيز صفحة الدفع...";
+
+    try {
+      const client = await initAuth();
+
+      const { data: userData, error: userError } =
+        await client.auth.getUser();
+
+      if (userError || !userData?.user) {
+        throw new Error("يجب تسجيل الدخول.");
+      }
+
+      localStorage.setItem(
+        "biocare_payment_order",
+        orderNumber
+      );
+
+      const { data, error } = await client.functions.invoke(
+        "paytabs-create-payment-v3",
+        {
+          body: {
+            order_number: orderNumber
+          }
+        }
+      );
+
+      if (error) throw error;
+
+      const paymentUrl = String(data?.payment_url || "");
+      const url = new URL(paymentUrl);
+
+      if (
+        url.protocol !== "https:" ||
+        !["secure.paytabs.sa", "secure.paytabs.com"].includes(url.hostname)
+      ) {
+        throw new Error("رابط الدفع غير صحيح.");
+      }
+
+      window.location.assign(url.toString());
+
+    } catch (e) {
+      console.error(e);
+
+      if (status) {
+        status.textContent =
+          "تعذر بدء الدفع الآن. حاول مرة أخرى بعد قليل.";
+      }
+
+      if (button) button.disabled = false;
+    }
+  };
+
+  window.openModal = function (html) {
+    const match = String(html).match(/BIO-[A-F0-9]{12}/);
+
+    if (
+      match &&
+      String(html).includes("تم استلام حجزك")
+    ) {
+      const orderNumber = match[0];
+
+      html += `
+        <div class="card">
+          <button
+            id="bioPaymentButton"
+            class="primary"
+            type="button"
+            onclick="startBiocarePayment('${orderNumber}')"
+          >
+            الدفع الآن بالبطاقة
+          </button>
+
+          <p
+            id="bioPaymentStatus"
+            role="status"
+            style="margin-top:12px"
+          ></p>
+        </div>
+      `;
+    }
+
+    return originalOpenModal(html);
+  };
+
+  async function paymentStatus(orderNumber) {
+    const client = await initAuth();
+
+    const { data, error } = await client.functions.invoke(
+      "paytabs-payment-status",
+      {
+        body: {
+          order_number: orderNumber
+        }
+      }
+    );
+
+    if (error) throw error;
+
+    return data;
+  }
+
+  async function checkReturn() {
+    const params = new URLSearchParams(location.search);
+
+    if (params.get("payment") !== "return") return;
+
+    const orderNumber =
+      localStorage.getItem("biocare_payment_order");
+
+    history.replaceState(
+      {},
+      "",
+      location.pathname
+    );
+
+    if (!orderNumber) return;
+
+    originalOpenModal(`
+      <h2>جاري التحقق من الدفع...</h2>
+      <div class="card">
+        <p class="muted">
+          نتحقق من حالة العملية بشكل آمن.
+        </p>
+      </div>
+    `);
+
+    let result = null;
+
+    for (let i = 0; i < 5; i++) {
+      try {
+        result = await paymentStatus(orderNumber);
+      } catch (e) {
+        console.error(e);
+      }
+
+      if (
+        result?.status === "paid" ||
+        result?.status === "failed" ||
+        result?.status === "cancelled"
+      ) {
+        break;
+      }
+
+      await new Promise(r => setTimeout(r, 1500));
+    }
+
+    if (result?.status === "paid") {
+      localStorage.removeItem("biocare_payment_order");
+
+      originalOpenModal(`
+        <h2>تم الدفع بنجاح ✅</h2>
+        <div class="card">
+          <p>رقم الحجز:</p>
+          <strong>${orderNumber}</strong>
+          <p class="muted">
+            تم تأكيد عملية الدفع في نظام بيوكير.
+          </p>
+          <button
+            class="primary"
+            onclick="closeModal();go('home')"
+          >
+            العودة للرئيسية
+          </button>
+        </div>
+      `);
+
+    } else if (
+      result?.status === "failed" ||
+      result?.status === "cancelled"
+    ) {
+      originalOpenModal(`
+        <h2>لم يكتمل الدفع</h2>
+        <div class="card">
+          <p class="muted">
+            لم يتم تأكيد عملية الدفع.
+          </p>
+          <button
+            id="bioPaymentButton"
+            class="primary"
+            onclick="startBiocarePayment('${orderNumber}')"
+          >
+            إعادة محاولة الدفع
+          </button>
+          <p id="bioPaymentStatus"></p>
+        </div>
+      `);
+
+    } else {
+      originalOpenModal(`
+        <h2>العملية قيد التحقق</h2>
+        <div class="card">
+          <p class="muted">
+            لم يصل التأكيد النهائي من بوابة الدفع بعد.
+            لا تعِد الدفع الآن.
+          </p>
+        </div>
+      `);
+    }
+  }
+
+  setTimeout(checkReturn, 500);
+})();
