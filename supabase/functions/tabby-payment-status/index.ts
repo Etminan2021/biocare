@@ -2,7 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 type JsonRecord = Record<string, unknown>;
-const ALLOWED_ORIGIN = "https://etminan2021.github.io";
+const ALLOWED_ORIGINS = new Set(["https://biocare-private-review.jocundtitan128.chatgpt.site", "https://biocaredx.com"]);
 const TABBY_API_BASE = "https://api.tabby.sa";
 
 function asRecord(value: unknown): JsonRecord | null {
@@ -16,9 +16,9 @@ function str(value: unknown): string | null {
   return result || null;
 }
 function corsHeaders(origin: string | null): HeadersInit {
-  if (origin !== ALLOWED_ORIGIN) return {};
+  if (!origin || !ALLOWED_ORIGINS.has(origin)) return {};
   return {
-    "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+    "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Vary": "Origin",
@@ -35,13 +35,13 @@ function amount(value: unknown): number | null {
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("origin");
   if (req.method === "OPTIONS") {
-    if (origin !== ALLOWED_ORIGIN) return new Response(null, { status: 403 });
+    if (!origin || !ALLOWED_ORIGINS.has(origin)) return new Response(null, { status: 403 });
     return new Response(null, { status: 204, headers: corsHeaders(origin) });
   }
   if (req.method !== "POST") {
     return respond(req, { code: "METHOD_NOT_ALLOWED", message: "Method not allowed" }, 405);
   }
-  if (origin && origin !== ALLOWED_ORIGIN) {
+  if (origin && !ALLOWED_ORIGINS.has(origin)) {
     return respond(req, { code: "ORIGIN_NOT_ALLOWED", message: "Origin not allowed" }, 403);
   }
 
