@@ -806,7 +806,7 @@
         const url = new URL(paymentUrl);
         if (
           url.protocol !== "https:" ||
-          !["checkout.tamara.co", "checkout-sandbox.tamara.co"].includes(url.hostname)
+          !["checkout-sandbox.tamara.co"].includes(url.hostname)
         ) {
           throw new Error("رابط تمارا غير صحيح.");
         }
