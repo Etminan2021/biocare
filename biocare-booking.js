@@ -782,6 +782,42 @@
       }
     };
 
+  window.startBiocareTamara =
+    async function (
+      orderNumber
+    ) {
+
+      const status =
+        document.getElementById(
+          "bioPaymentStatus"
+        );
+
+      try {
+        const client = await getLoggedInClient();
+        localStorage.setItem("biocare_tamara_order", String(orderNumber));
+        const { data, error } = await client.functions.invoke(
+          "tamara-create-checkout-direct",
+          { body: { order_number: String(orderNumber) } }
+        );
+        if (error) throw error;
+
+        const paymentUrl = String(data?.payment_url || "");
+        if (!paymentUrl) throw new Error("لم يتم إنشاء رابط تمارا.");
+        const url = new URL(paymentUrl);
+        if (
+          url.protocol !== "https:" ||
+          !["checkout.tamara.co", "checkout-sandbox.tamara.co"].includes(url.hostname)
+        ) {
+          throw new Error("رابط تمارا غير صحيح.");
+        }
+        window.location.assign(url.toString());
+      } catch (error) {
+        console.error("Tamara checkout failed", error);
+        localStorage.removeItem("biocare_tamara_order");
+        if (status) status.textContent = "تعذر بدء تجربة تمارا. تحقق من إعدادات Sandbox وحاول لاحقًا.";
+      }
+    };
+
   async function getPaymentStatus(
     orderNumber
   ) {
@@ -835,6 +871,17 @@
       throw error;
     }
 
+    return data || {};
+  }
+
+  async function getTamaraPaymentStatus(orderNumber) {
+
+    const client = await getLoggedInClient();
+    const { data, error } = await client.functions.invoke(
+      "tamara-payment-status",
+      { body: { order_number: String(orderNumber) } }
+    );
+    if (error) throw error;
     return data || {};
   }
 
@@ -1493,6 +1540,62 @@
     `);
   }
 
+  async function checkTamaraReturn() {
+
+    const params = new URLSearchParams(window.location.search);
+    const tamaraResult = params.get("tamara");
+    if (!["success", "cancel", "failure"].includes(String(tamaraResult))) return;
+
+    const orderNumber =
+      params.get("order") ||
+      localStorage.getItem("biocare_tamara_order") ||
+      "";
+
+    history.replaceState(
+      {},
+      "",
+      window.location.pathname + window.location.hash
+    );
+    localStorage.removeItem("biocare_tamara_order");
+
+    if (!orderNumber) {
+      openModal(`
+        <h2>تعذر التحقق من الدفع</h2>
+        <div class="card">
+          <p class="muted">لم نعثر على رقم الحجز المطلوب للتحقق الآمن.</p>
+          <button class="primary" type="button" onclick="closeModal();go('home')">العودة للرئيسية</button>
+        </div>
+      `);
+      return;
+    }
+
+    openModal(`
+      <h2>جارٍ التحقق من حالة الدفع...</h2>
+      <div class="card"><p class="muted">نتحقق مباشرة من تمارا قبل تأكيد الحجز.</p></div>
+    `);
+
+    let result = null;
+    for (let attempt = 0; attempt < 8; attempt++) {
+      try {
+        result = await getTamaraPaymentStatus(orderNumber);
+      } catch (error) {
+        console.error("Tamara status check failed", error);
+      }
+      if (["paid", "failed", "cancelled"].includes(result?.status)) break;
+      if (attempt < 7) await new Promise(resolve => setTimeout(resolve, 1500));
+    }
+
+    if (result?.status === "paid" && result?.verified === true) {
+      showPaidModal(orderNumber);
+      return;
+    }
+    if (result?.status === "failed" || result?.status === "cancelled") {
+      showFailedPaymentModal(orderNumber);
+      return;
+    }
+    showPendingPaymentModal(orderNumber);
+  }
+
   window.createBiocareLabBooking =
     async function () {
 
@@ -1875,6 +1978,14 @@
           );
 
         checkTabbyReturn()
+          .catch(
+            error =>
+              console.error(
+                error
+              )
+          );
+
+        checkTamaraReturn()
           .catch(
             error =>
               console.error(
