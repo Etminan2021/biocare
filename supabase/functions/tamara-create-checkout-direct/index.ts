@@ -2,9 +2,9 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 type Rec = Record<string, unknown>;
-const ORIGIN = "https://etminan2021.github.io";
+const ALLOWED_ORIGINS = new Set(["https://biocare-private-review.jocundtitan128.chatgpt.site", "https://biocaredx.com"]);
 const API = "https://api-sandbox.tamara.co";
-const CATALOG_URL = "https://raw.githubusercontent.com/Etminan2021/biocare/main/catalog.js";
+const CATALOG_URL = "https://raw.githubusercontent.com/Etminan2021/biocare/codex/secure-provider-status/catalog.js";
 
 function obj(value: unknown): Rec | null {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Rec : null;
@@ -23,8 +23,8 @@ function itemKey(type: string, id: string) {
   return `${type}:${id}`;
 }
 function headers(origin: string | null): HeadersInit {
-  return origin === ORIGIN ? {
-    "Access-Control-Allow-Origin": ORIGIN,
+  return origin && ALLOWED_ORIGINS.has(origin) ? {
+    "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Vary": "Origin",
@@ -67,11 +67,11 @@ function tamaraPhone(raw: string): string {
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("origin");
   if (req.method === "OPTIONS") {
-    if (origin !== ORIGIN) return new Response(null, { status: 403 });
+    if (!origin || !ALLOWED_ORIGINS.has(origin)) return new Response(null, { status: 403 });
     return new Response(null, { status: 204, headers: headers(origin) });
   }
   if (req.method !== "POST") return respond(req, { code: "METHOD_NOT_ALLOWED", message: "Method not allowed" }, 405);
-  if (origin && origin !== ORIGIN) return respond(req, { code: "ORIGIN_NOT_ALLOWED", message: "Origin not allowed" }, 403);
+  if (origin && !ALLOWED_ORIGINS.has(origin)) return respond(req, { code: "ORIGIN_NOT_ALLOWED", message: "Origin not allowed" }, 403);
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -203,7 +203,7 @@ Deno.serve(async (req: Request) => {
   const lastName = parts.join(" ") || "Customer";
   const branch = branchAddress(String(details.branch_key || ""));
   const paymentId = crypto.randomUUID();
-  const checkoutBase = "https://etminan2021.github.io/biocare/?";
+  const checkoutBase = "https://biocare-private-review.jocundtitan128.chatgpt.site/?";
   const paymentRow = await admin.from("care_payments").insert({
     order_id: order.id,
     provider: "tamara",
@@ -298,7 +298,7 @@ Deno.serve(async (req: Request) => {
       const candidate = new URL(checkoutUrlRaw);
       if (
         candidate.protocol === "https:" &&
-        ["checkout.tamara.co", "checkout-sandbox.tamara.co"].includes(candidate.hostname)
+        ["checkout-sandbox.tamara.co"].includes(candidate.hostname)
       ) checkoutUrl = candidate;
     }
   } catch {}
