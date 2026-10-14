@@ -223,8 +223,12 @@ Deno.serve(async (req: Request) => {
     total_amount: { amount: total, currency: "SAR" },
     description: `Biocare laboratory booking ${orderNumber}`,
     country_code: "SA",
+    tax_amount: { amount: tax, currency: "SAR" },
+    shipping_amount: { amount: 0, currency: "SAR" },
     payment_type: "PAY_BY_INSTALMENTS",
     locale: "ar_SA",
+    platform: "mobile",
+    is_mobile: true,
     items: [{
       reference_id: orderNumber,
       type: "Service",
@@ -244,11 +248,12 @@ Deno.serve(async (req: Request) => {
     shipping_address: {
       first_name: firstName,
       last_name: lastName,
-      address_line1: branch.address,
+      line1: branch.address,
+      line2: "",
       city: branch.city,
       country_code: "SA",
       phone_number: phone,
-      zip_code: "00000",
+      region: branch.city,
     },
     merchant_url: {
       success: `${checkoutBase}tamara=success&order=${encodeURIComponent(orderNumber)}`,
