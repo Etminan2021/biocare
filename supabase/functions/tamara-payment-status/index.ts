@@ -2,7 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 type Rec = Record<string, unknown>;
-const ORIGIN = "https://etminan2021.github.io";
+const ALLOWED_ORIGINS = new Set(["https://biocare-private-review.jocundtitan128.chatgpt.site", "https://biocaredx.com"]);
 const API = "https://api-sandbox.tamara.co";
 
 function obj(value: unknown): Rec | null {
@@ -18,8 +18,8 @@ function amount(value: unknown): number | null {
   return Number.isFinite(parsed) ? Math.round(parsed * 100) / 100 : null;
 }
 function headers(origin: string | null): HeadersInit {
-  return origin === ORIGIN ? {
-    "Access-Control-Allow-Origin": ORIGIN,
+  return origin && ALLOWED_ORIGINS.has(origin) ? {
+    "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Vary": "Origin",
@@ -42,11 +42,11 @@ async function tamaraRequest(apiToken: string, path: string, method = "GET"): Pr
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("origin");
   if (req.method === "OPTIONS") {
-    if (origin !== ORIGIN) return new Response(null, { status: 403 });
+    if (!origin || !ALLOWED_ORIGINS.has(origin)) return new Response(null, { status: 403 });
     return new Response(null, { status: 204, headers: headers(origin) });
   }
   if (req.method !== "POST") return respond(req, { code: "METHOD_NOT_ALLOWED", message: "Method not allowed" }, 405);
-  if (origin && origin !== ORIGIN) return respond(req, { code: "ORIGIN_NOT_ALLOWED", message: "Origin not allowed" }, 403);
+  if (origin && !ALLOWED_ORIGINS.has(origin)) return respond(req, { code: "ORIGIN_NOT_ALLOWED", message: "Origin not allowed" }, 403);
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
