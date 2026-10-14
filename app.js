@@ -390,7 +390,7 @@ window.registerAccount=async()=>{
   authMessage('جارٍ إنشاء الحساب...');
   try{
     const client=await initAuth();
-    const {data,error}=await client.auth.signUp({email,password,options:{emailRedirectTo:'https://etminan2021.github.io/biocare/'}});
+    const {data,error}=await client.auth.signUp({email,password,options:{emailRedirectTo:`${location.origin}/`}});
     if(error)throw error;
     if(data.session){authUser=data.user;closeModal();go('profile');toast('تم إنشاء الحساب بنجاح')}
     else authMessage('تم إرسال رسالة تأكيد إن كان البريد مؤهلًا للتسجيل. افتح بريدك واضغط رابط التأكيد، ثم سجّل الدخول.');
