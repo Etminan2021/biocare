@@ -480,7 +480,8 @@
 
     [
       "bioPaymentButton",
-      "bioApplePayButton"
+      "bioApplePayButton",
+      "bioTabbyButton"
     ].forEach(id => {
 
       const button =
@@ -591,10 +592,6 @@
 
         /*
          * Apple Pay
-         *
-         * يفتح Hosted Payment Page
-         * خارج الـ iframe لأن Apple Pay
-         * لا يعمل في Framed Mode.
          */
         if (
           mode === "applepay"
@@ -609,8 +606,6 @@
 
         /*
          * Mada / Visa / Mastercard
-         *
-         * تظهر داخل تطبيق بيوكير.
          */
         openModal(`
           <h2
@@ -669,6 +664,115 @@
 
           status.textContent =
             "تعذر بدء الدفع الآن. حاول مرة أخرى بعد قليل.";
+
+        }
+
+        setPaymentButtonsDisabled(
+          false
+        );
+      }
+    };
+
+  /*
+   * Tabby Sandbox
+   */
+  window.startBiocareTabbyTest =
+    async function (
+      orderNumber
+    ) {
+
+      const status =
+        document.getElementById(
+          "bioPaymentStatus"
+        );
+
+      setPaymentButtonsDisabled(
+        true
+      );
+
+      if (status) {
+        status.textContent =
+          "جارٍ تجهيز تابي التجريبي...";
+      }
+
+      try {
+
+        const client =
+          await getLoggedInClient();
+
+        localStorage.setItem(
+          "biocare_tabby_order",
+          String(orderNumber)
+        );
+
+        const {
+          data,
+          error
+        } =
+          await client.functions.invoke(
+            "tabby-create-checkout-test",
+            {
+              body: {
+                order_number:
+                  String(
+                    orderNumber
+                  ),
+
+                scenario:
+                  "success"
+              }
+            }
+          );
+
+        if (error) {
+          throw error;
+        }
+
+        const paymentUrl =
+          String(
+            data?.payment_url ||
+            ""
+          );
+
+        if (!paymentUrl) {
+          throw new Error(
+            "لم يتم إنشاء رابط تابي."
+          );
+        }
+
+        const url =
+          new URL(
+            paymentUrl
+          );
+
+        if (
+          url.protocol !== "https:" ||
+          ![
+            "checkout.tabby.sa",
+            "checkout.tabby.ai"
+          ].includes(
+            url.hostname
+          )
+        ) {
+          throw new Error(
+            "رابط تابي غير صحيح."
+          );
+        }
+
+        window.location.assign(
+          url.toString()
+        );
+
+      } catch (error) {
+
+        console.error(
+          error
+        );
+
+        if (status) {
+
+          status.textContent =
+            "تعذر بدء تجربة تابي الآن. استخدم حجزًا جديدًا وحاول مرة أخرى.";
 
         }
 
@@ -807,6 +911,40 @@
         "
       >
         مدى • Visa • Mastercard
+      </div>
+
+      <button
+        id="bioTabbyButton"
+        type="button"
+        onclick="startBiocareTabbyTest('${esc(
+          orderNumber
+        )}')"
+        style="
+          display:block;
+          width:100%;
+          min-height:54px;
+          margin-top:18px;
+          border:2px solid #111;
+          border-radius:14px;
+          background:#fff;
+          color:#111;
+          font-size:18px;
+          font-weight:800;
+          cursor:pointer;
+        "
+      >
+        الدفع مع تابي
+      </button>
+
+      <div
+        style="
+          margin-top:8px;
+          text-align:center;
+          font-size:11px;
+          color:#8b8f99;
+        "
+      >
+        وضع تجريبي Sandbox
       </div>
 
       <p
@@ -1156,6 +1294,186 @@
     showPendingPaymentModal(
       orderNumber
     );
+  }
+
+  /*
+   * Return from Tabby sandbox.
+   *
+   * لا نعتبر العملية مدفوعة هنا.
+   * هذه فقط نتيجة العودة من صفحة الاختبار.
+   */
+  async function checkTabbyReturn() {
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const tabbyResult =
+      params.get(
+        "tabby"
+      );
+
+    if (
+      ![
+        "success",
+        "cancel",
+        "failure"
+      ].includes(
+        String(
+          tabbyResult
+        )
+      )
+    ) {
+      return;
+    }
+
+    const orderFromUrl =
+      params.get(
+        "order"
+      );
+
+    const storedOrder =
+      localStorage.getItem(
+        "biocare_tabby_order"
+      );
+
+    const orderNumber =
+      orderFromUrl ||
+      storedOrder ||
+      "";
+
+    history.replaceState(
+      {},
+      "",
+      window.location.pathname +
+        window.location.hash
+    );
+
+    localStorage.removeItem(
+      "biocare_tabby_order"
+    );
+
+    if (
+      tabbyResult ===
+      "success"
+    ) {
+
+      openModal(`
+        <h2>
+          تم الرجوع من تابي ✅
+        </h2>
+
+        <div class="card">
+
+          ${
+            orderNumber
+              ? `
+                <p>
+                  رقم الحجز:
+                </p>
+
+                <div
+                  style="
+                    font-size:20px;
+                    font-weight:800;
+                    direction:ltr;
+                    text-align:center;
+                    margin:12px 0;
+                  "
+                >
+                  ${esc(
+                    orderNumber
+                  )}
+                </div>
+              `
+              : ""
+          }
+
+          <p class="muted">
+            اكتملت تجربة مسار تابي التجريبي بنجاح.
+          </p>
+
+          <div
+            class="notice"
+            style="
+              margin-top:14px;
+            "
+          >
+            هذه بيئة Sandbox.
+            لم يتم تسجيل الحجز كمدفوع نهائيًا بعد.
+            سنربط خطوة التحقق والتأكيد النهائي من تابي بعد نجاح الاختبار.
+          </div>
+
+          <button
+            class="primary"
+            type="button"
+            style="
+              margin-top:14px;
+            "
+            onclick="closeModal();go('home')"
+          >
+            العودة للرئيسية
+          </button>
+
+        </div>
+      `);
+
+      return;
+    }
+
+    if (
+      tabbyResult ===
+      "cancel"
+    ) {
+
+      openModal(`
+        <h2>
+          تم إلغاء تجربة تابي
+        </h2>
+
+        <div class="card">
+
+          <p class="muted">
+            تم الرجوع من صفحة تابي دون إكمال الاختبار.
+          </p>
+
+          <button
+            class="primary"
+            type="button"
+            onclick="closeModal();go('home')"
+          >
+            العودة للرئيسية
+          </button>
+
+        </div>
+      `);
+
+      return;
+    }
+
+    openModal(`
+      <h2>
+        لم تكتمل تجربة تابي
+      </h2>
+
+      <div class="card">
+
+        <p class="muted">
+          أعادت تابي نتيجة فشل للاختبار.
+          سنراجع نتيجة الطلب قبل الانتقال للإنتاج.
+        </p>
+
+        <button
+          class="primary"
+          type="button"
+          onclick="closeModal();go('home')"
+        >
+          العودة للرئيسية
+        </button>
+
+      </div>
+    `);
   }
 
   window.createBiocareLabBooking =
@@ -1532,6 +1850,14 @@
       () => {
 
         checkPaymentReturn()
+          .catch(
+            error =>
+              console.error(
+                error
+              )
+          );
+
+        checkTabbyReturn()
           .catch(
             error =>
               console.error(
