@@ -514,9 +514,44 @@
           );
         }
 
-        window.location.assign(
-          url.toString()
-        );
+        openModal(`
+          <h2 style="margin-bottom:14px">
+            الدفع الآمن
+          </h2>
+
+          <div
+            style="
+              width:100%;
+              background:#fff;
+              border-radius:18px;
+              overflow:hidden;
+            "
+          >
+            <iframe
+              src="${esc(url.toString())}"
+              title="الدفع الآمن"
+              allow="payment *"
+              style="
+                display:block;
+                width:100%;
+                height:76vh;
+                min-height:600px;
+                border:0;
+                background:#fff;
+              "
+            ></iframe>
+          </div>
+
+          <p
+            class="muted"
+            style="
+              text-align:center;
+              margin-top:10px;
+            "
+          >
+            يتم تنفيذ الدفع بشكل آمن داخل تطبيق بيوكير.
+          </p>
+        `);
 
       } catch (error) {
         console.error(error);
@@ -794,7 +829,7 @@
       <div class="card">
 
         <p class="muted">
-          نتحقق من PayTabs بشكل آمن.
+          نتحقق من عملية الدفع بشكل آمن.
           لا تغلق الصفحة.
         </p>
 
