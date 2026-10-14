@@ -1,142 +1,28 @@
 {
-  "input_en_rows": 509,
-  "input_ar_rows": 148,
-  "packages": 100,
-  "tests_after": 749,
-  "new_tests": 4,
-  "price_changes": 662,
-  "unpriced_tests": 0,
-  "sample_changes": [
-    [
-      "Gut Microbiome Test",
-      null,
-      2800
-    ],
-    [
-      "SIBO",
-      null,
-      950
-    ],
-    [
-      "Influenza Type A B Serology",
-      null,
-      299
-    ],
-    [
-      "Acid Phosphatase",
-      null,
-      500
-    ],
-    [
-      "Zolpidem (Stilnox) In Serum (BS)",
-      null,
-      1000
-    ],
-    [
-      "Zinc",
-      null,
-      40
-    ],
-    [
-      "Y Chromosome Microdeletion",
-      null,
-      1500
-    ],
-    [
-      "Widal Test",
-      125,
-      150
-    ],
-    [
-      "Whole Genome Sequencing with reflex",
-      null,
-      12000
-    ],
-    [
-      "Whole Genome Sequencing trio with reflex",
-      null,
-      16500
-    ],
-    [
-      "Whole Exome Sequencing (WES) Adult/Pediatric",
-      null,
-      4000
-    ],
-    [
-      "Vulval Swab Examination C/S",
-      null,
-      150
-    ],
-    [
-      "Vitamin D (25 OH-Vit D-Total)",
-      null,
-      40
-    ],
-    [
-      "Vitamin D (1.25 Dihydroxycholecalciferol)",
-      null,
-      1100
-    ],
-    [
-      "Vitamin C (Ascorbic Acid)",
-      null,
-      150
-    ],
-    [
-      "Vitamin B5 (pantothenic acid) (Q)",
-      null,
-      550
-    ],
-    [
-      "Vitamin B2 (Riboflavin)",
-      null,
-      150
-    ],
-    [
-      "Vitamin B12",
-      70,
-      40
-    ],
-    [
-      "Vitamin B1 (Thiamin)",
-      null,
-      150
-    ],
-    [
-      "Vitamin A (Retinol)",
-      null,
-      150
-    ],
-    [
-      "Very Low Density Lipoprotein (VLDL)",
-      null,
-      50
-    ],
-    [
-      "Varicella Zoster IgM",
-      null,
-      150
-    ],
-    [
-      "Varicella Zoster IgG",
-      null,
-      150
-    ],
-    [
-      "Vanillylmandelic Acid (VMA)(Q)",
-      null,
-      720
-    ],
-    [
-      "Vancomycin",
-      null,
-      1200
-    ]
+  "source_file": "اسعار بالتحاليل الفردية والباقات اخر تحديث معتمد (7).xlsx",
+  "source_status": "user-provided current official workbook",
+  "reviewed_on": "2026-10-15",
+  "individual_test_prices": 90,
+  "tests_matched_to_catalog": 88,
+  "test_prices_updated": 36,
+  "test_price_mismatches_after_sync": 0,
+  "tests_unresolved": [
+    {
+      "name": "OGTT",
+      "reason": "The catalog has separate 50g, 75g, and 100g tests; the workbook does not specify which test row to update."
+    },
+    {
+      "name": "Anti Phospholipid (IgM) Abs",
+      "reason": "No matching catalog item was found."
+    }
   ],
-  "new_samples": [
-    "Testosterone (Total)",
-    "Testosterone (Free)",
-    "Rubella (IgG)",
-    "CA 19.9"
+  "packages_in_source": 100,
+  "packages_matched_to_catalog": 100,
+  "package_price_mismatches_after_sync": 0,
+  "unpriced_source_rows": [
+    "Fb"
+  ],
+  "notes": [
+    "Exact-name and clear synonym matches were synchronized. Unresolved catalog entries were left unchanged."
   ]
 }
