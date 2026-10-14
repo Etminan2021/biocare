@@ -28,13 +28,15 @@
       0
     );
 
-    const pending = selected.length - priced.length;
+    const pending =
+      selected.length - priced.length;
 
     return `
       <section class="section">
 
         <div class="section-head">
           <h2 class="under">الحجز</h2>
+
           <span class="count-badge">
             ${selected.length} عنصر
           </span>
@@ -292,132 +294,165 @@
     `;
   }
 
-  window.biocareBookingUpdateTotal = function () {
-    const box =
-      document.getElementById("bioBookingTotal");
+  window.biocareBookingUpdateTotal =
+    function () {
 
-    if (!box) return;
+      const box =
+        document.getElementById(
+          "bioBookingTotal"
+        );
 
-    const priced = selected.filter(
-      x => Number.isFinite(Number(x.price))
-    );
+      if (!box) return;
 
-    const subtotal = priced.reduce(
-      (sum, x) => sum + Number(x.price),
-      0
-    );
+      const priced =
+        selected.filter(
+          x =>
+            Number.isFinite(
+              Number(x.price)
+            )
+        );
 
-    const pending =
-      selected.length - priced.length;
+      const subtotal =
+        priced.reduce(
+          (sum, x) =>
+            sum + Number(x.price),
+          0
+        );
 
-    const type =
-      document
-        .getElementById("bioBookingCustomerType")
-        ?.value || "saudi";
+      const pending =
+        selected.length -
+        priced.length;
 
-    const vat =
-      type === "resident" && pending === 0
-        ? Math.round(subtotal * 0.15 * 100) / 100
-        : 0;
+      const type =
+        document
+          .getElementById(
+            "bioBookingCustomerType"
+          )
+          ?.value || "saudi";
 
-    const total =
-      Math.round((subtotal + vat) * 100) / 100;
+      const vat =
+        type === "resident" &&
+        pending === 0
+          ? Math.round(
+              subtotal *
+              0.15 *
+              100
+            ) / 100
+          : 0;
 
-    if (pending > 0) {
-      box.innerHTML = `
-        <strong>
-          الإجمالي المعروف:
-          ${fmtPrice(subtotal)}
-        </strong>
+      const total =
+        Math.round(
+          (subtotal + vat) *
+          100
+        ) / 100;
 
-        <br>
+      if (pending > 0) {
+        box.innerHTML = `
+          <strong>
+            الإجمالي المعروف:
+            ${fmtPrice(subtotal)}
+          </strong>
 
-        <span class="micro-note">
-          يوجد عنصر بسعر يحتاج تأكيد المختبر؛
-          لن يتم بدء الدفع حتى يتم تأكيد السعر النهائي.
-        </span>
-      `;
+          <br>
 
-      return;
-    }
+          <span class="micro-note">
+            يوجد عنصر بسعر يحتاج تأكيد المختبر؛
+            لن يتم بدء الدفع حتى يتم تأكيد السعر النهائي.
+          </span>
+        `;
 
-    box.innerHTML = `
-
-      <div>
-        المبلغ:
-        <strong>
-          ${fmtPrice(subtotal)}
-        </strong>
-      </div>
-
-      ${
-        type === "resident"
-          ? `
-            <div>
-              ضريبة القيمة المضافة 15%:
-              <strong>
-                ${fmtPrice(vat)}
-              </strong>
-            </div>
-          `
-          : ""
+        return;
       }
 
-      <div style="margin-top:8px">
+      box.innerHTML = `
 
-        الإجمالي:
+        <div>
+          المبلغ:
+          <strong>
+            ${fmtPrice(subtotal)}
+          </strong>
+        </div>
 
-        <strong>
-          ${fmtPrice(total)}
-        </strong>
-
-      </div>
-    `;
-  };
-
-  window.biocareBookingDateChanged = function () {
-    const dateInput =
-      document.getElementById("bioBookingDate");
-
-    const period =
-      document.getElementById("bioBookingPeriod");
-
-    if (
-      !dateInput ||
-      !period ||
-      !dateInput.value
-    ) {
-      return;
-    }
-
-    const chosen =
-      new Date(
-        dateInput.value + "T12:00:00"
-      );
-
-    const friday =
-      chosen.getDay() === 5;
-
-    Array
-      .from(period.options)
-      .forEach(option => {
-
-        if (
-          option.dataset.friday === "no"
-        ) {
-          option.disabled = friday;
+        ${
+          type === "resident"
+            ? `
+              <div>
+                ضريبة القيمة المضافة 15%:
+                <strong>
+                  ${fmtPrice(vat)}
+                </strong>
+              </div>
+            `
+            : ""
         }
 
-      });
+        <div style="margin-top:8px">
 
-    if (
-      period.selectedOptions[0]?.disabled
-    ) {
-      period.value = "";
-    }
-  };
+          الإجمالي:
+
+          <strong>
+            ${fmtPrice(total)}
+          </strong>
+
+        </div>
+      `;
+    };
+
+  window.biocareBookingDateChanged =
+    function () {
+
+      const dateInput =
+        document.getElementById(
+          "bioBookingDate"
+        );
+
+      const period =
+        document.getElementById(
+          "bioBookingPeriod"
+        );
+
+      if (
+        !dateInput ||
+        !period ||
+        !dateInput.value
+      ) {
+        return;
+      }
+
+      const chosen =
+        new Date(
+          dateInput.value +
+          "T12:00:00"
+        );
+
+      const friday =
+        chosen.getDay() === 5;
+
+      Array
+        .from(period.options)
+        .forEach(option => {
+
+          if (
+            option.dataset.friday ===
+            "no"
+          ) {
+            option.disabled =
+              friday;
+          }
+
+        });
+
+      if (
+        period
+          .selectedOptions[0]
+          ?.disabled
+      ) {
+        period.value = "";
+      }
+    };
 
   async function getLoggedInClient() {
+
     const client =
       await initAuth();
 
@@ -439,29 +474,59 @@
     return client;
   }
 
+  function setPaymentButtonsDisabled(
+    disabled
+  ) {
+
+    [
+      "bioPaymentButton",
+      "bioApplePayButton"
+    ].forEach(id => {
+
+      const button =
+        document.getElementById(
+          id
+        );
+
+      if (button) {
+        button.disabled =
+          disabled;
+      }
+
+    });
+  }
+
   window.startBiocarePayment =
-    async function (orderNumber) {
+    async function (
+      orderNumber,
+      paymentMode = "card"
+    ) {
+
+      const mode =
+        paymentMode === "applepay"
+          ? "applepay"
+          : "card";
 
       const status =
         document.getElementById(
           "bioPaymentStatus"
         );
 
-      const button =
-        document.getElementById(
-          "bioPaymentButton"
-        );
-
-      if (button) {
-        button.disabled = true;
-      }
+      setPaymentButtonsDisabled(
+        true
+      );
 
       if (status) {
+
         status.textContent =
-          "جارٍ تجهيز صفحة الدفع الآمنة...";
+          mode === "applepay"
+            ? "جارٍ تجهيز Apple Pay..."
+            : "جارٍ تجهيز الدفع الآمن...";
+
       }
 
       try {
+
         const client =
           await getLoggedInClient();
 
@@ -479,7 +544,12 @@
             {
               body: {
                 order_number:
-                  String(orderNumber)
+                  String(
+                    orderNumber
+                  ),
+
+                payment_mode:
+                  mode
               }
             }
           );
@@ -490,7 +560,8 @@
 
         const paymentUrl =
           String(
-            data?.payment_url || ""
+            data?.payment_url ||
+            ""
           );
 
         if (!paymentUrl) {
@@ -500,22 +571,53 @@
         }
 
         const url =
-          new URL(paymentUrl);
+          new URL(
+            paymentUrl
+          );
 
         if (
           url.protocol !== "https:" ||
           ![
             "secure.paytabs.sa",
             "secure.paytabs.com"
-          ].includes(url.hostname)
+          ].includes(
+            url.hostname
+          )
         ) {
           throw new Error(
             "رابط الدفع غير صحيح."
           );
         }
 
+        /*
+         * Apple Pay
+         *
+         * يفتح Hosted Payment Page
+         * خارج الـ iframe لأن Apple Pay
+         * لا يعمل في Framed Mode.
+         */
+        if (
+          mode === "applepay"
+        ) {
+
+          window.location.assign(
+            url.toString()
+          );
+
+          return;
+        }
+
+        /*
+         * Mada / Visa / Mastercard
+         *
+         * تظهر داخل تطبيق بيوكير.
+         */
         openModal(`
-          <h2 style="margin-bottom:14px">
+          <h2
+            style="
+              margin-bottom:14px
+            "
+          >
             الدفع الآمن
           </h2>
 
@@ -527,8 +629,11 @@
               overflow:hidden;
             "
           >
+
             <iframe
-              src="${esc(url.toString())}"
+              src="${esc(
+                url.toString()
+              )}"
               title="الدفع الآمن"
               allow="payment *"
               style="
@@ -540,6 +645,7 @@
                 background:#fff;
               "
             ></iframe>
+
           </div>
 
           <p
@@ -554,22 +660,28 @@
         `);
 
       } catch (error) {
-        console.error(error);
+
+        console.error(
+          error
+        );
 
         if (status) {
+
           status.textContent =
             "تعذر بدء الدفع الآن. حاول مرة أخرى بعد قليل.";
+
         }
 
-        if (button) {
-          button.disabled = false;
-        }
+        setPaymentButtonsDisabled(
+          false
+        );
       }
     };
 
   async function getPaymentStatus(
     orderNumber
   ) {
+
     const client =
       await getLoggedInClient();
 
@@ -582,7 +694,9 @@
         {
           body: {
             order_number:
-              String(orderNumber)
+              String(
+                orderNumber
+              )
           }
         }
       );
@@ -594,9 +708,105 @@
     return data || {};
   }
 
+  function paymentOptionsHtml(
+    orderNumber
+  ) {
+
+    return `
+
+      <button
+        id="bioApplePayButton"
+        type="button"
+        aria-label="الدفع باستخدام Apple Pay"
+        onclick="startBiocarePayment('${esc(
+          orderNumber
+        )}','applepay')"
+        style="
+          display:block;
+          width:100%;
+          min-height:54px;
+          margin-top:16px;
+          border:0;
+          border-radius:14px;
+          background:#000;
+          color:#fff;
+          font-size:24px;
+          font-weight:600;
+          cursor:pointer;
+        "
+      >
+         Pay
+      </button>
+
+      <div
+        style="
+          display:flex;
+          align-items:center;
+          gap:12px;
+          margin:18px 0;
+          color:#8b8f99;
+          font-size:13px;
+        "
+      >
+
+        <span
+          style="
+            height:1px;
+            background:#e2e5ea;
+            flex:1;
+          "
+        ></span>
+
+        <span>
+          أو
+        </span>
+
+        <span
+          style="
+            height:1px;
+            background:#e2e5ea;
+            flex:1;
+          "
+        ></span>
+
+      </div>
+
+      <button
+        id="bioPaymentButton"
+        class="primary"
+        type="button"
+        onclick="startBiocarePayment('${esc(
+          orderNumber
+        )}','card')"
+      >
+        الدفع بالبطاقة
+      </button>
+
+      <div
+        style="
+          margin-top:10px;
+          text-align:center;
+          font-size:12px;
+          color:#8b8f99;
+        "
+      >
+        مدى • Visa • Mastercard
+      </div>
+
+      <p
+        id="bioPaymentStatus"
+        role="status"
+        style="
+          margin-top:12px
+        "
+      ></p>
+    `;
+  }
+
   function showPaidModal(
     orderNumber
   ) {
+
     localStorage.removeItem(
       "biocare_payment_order"
     );
@@ -621,7 +831,9 @@
             margin:14px 0
           "
         >
-          ${esc(orderNumber)}
+          ${esc(
+            orderNumber
+          )}
         </div>
 
         <p class="muted">
@@ -643,6 +855,7 @@
   function showFailedPaymentModal(
     orderNumber
   ) {
+
     openModal(`
       <h2>
         لم يكتمل الدفع
@@ -655,24 +868,15 @@
           يمكنك المحاولة مرة أخرى.
         </p>
 
-        <button
-          id="bioPaymentButton"
-          class="primary"
-          type="button"
-          onclick="startBiocarePayment('${esc(orderNumber)}')"
-        >
-          إعادة محاولة الدفع
-        </button>
-
-        <p
-          id="bioPaymentStatus"
-          role="status"
-          style="margin-top:12px"
-        ></p>
+        ${paymentOptionsHtml(
+          orderNumber
+        )}
 
         <button
           type="button"
-          style="margin-top:10px"
+          style="
+            margin-top:10px
+          "
           onclick="closeModal();go('home')"
         >
           العودة للرئيسية
@@ -685,6 +889,7 @@
   function showPendingPaymentModal(
     orderNumber
   ) {
+
     openModal(`
       <h2>
         العملية قيد التحقق
@@ -700,7 +905,9 @@
         <button
           class="primary"
           type="button"
-          onclick="refreshBiocarePaymentStatus('${esc(orderNumber)}')"
+          onclick="refreshBiocarePaymentStatus('${esc(
+            orderNumber
+          )}')"
         >
           تحديث حالة الدفع
         </button>
@@ -708,7 +915,9 @@
         <p
           id="bioPaymentStatus"
           role="status"
-          style="margin-top:12px"
+          style="
+            margin-top:12px
+          "
         ></p>
 
       </div>
@@ -716,7 +925,9 @@
   }
 
   window.refreshBiocarePaymentStatus =
-    async function (orderNumber) {
+    async function (
+      orderNumber
+    ) {
 
       const statusBox =
         document.getElementById(
@@ -729,14 +940,17 @@
       }
 
       try {
+
         const result =
           await getPaymentStatus(
             orderNumber
           );
 
         if (
-          result?.status === "paid"
+          result?.status ===
+          "paid"
         ) {
+
           showPaidModal(
             orderNumber
           );
@@ -745,9 +959,12 @@
         }
 
         if (
-          result?.status === "failed" ||
-          result?.status === "cancelled"
+          result?.status ===
+            "failed" ||
+          result?.status ===
+            "cancelled"
         ) {
+
           showFailedPaymentModal(
             orderNumber
           );
@@ -756,28 +973,38 @@
         }
 
         if (statusBox) {
+
           statusBox.textContent =
             "ما زالت العملية قيد التحقق. لا تعِد الدفع الآن.";
+
         }
 
       } catch (error) {
-        console.error(error);
+
+        console.error(
+          error
+        );
 
         if (statusBox) {
+
           statusBox.textContent =
             "تعذر التحقق الآن. حاول بعد قليل.";
+
         }
       }
     };
 
   async function checkPaymentReturn() {
+
     const params =
       new URLSearchParams(
         window.location.search
       );
 
     if (
-      params.get("payment") !== "return"
+      params.get(
+        "payment"
+      ) !== "return"
     ) {
       return;
     }
@@ -795,6 +1022,7 @@
     );
 
     if (!orderNumber) {
+
       openModal(`
         <h2>
           العودة من صفحة الدفع
@@ -843,24 +1071,36 @@
       attempt < 8;
       attempt++
     ) {
+
       try {
+
         result =
           await getPaymentStatus(
             orderNumber
           );
+
       } catch (error) {
-        console.error(error);
+
+        console.error(
+          error
+        );
       }
 
       if (
-        result?.status === "paid" ||
-        result?.status === "failed" ||
-        result?.status === "cancelled"
+        result?.status ===
+          "paid" ||
+        result?.status ===
+          "failed" ||
+        result?.status ===
+          "cancelled"
       ) {
         break;
       }
 
-      if (attempt < 7) {
+      if (
+        attempt < 7
+      ) {
+
         await new Promise(
           resolve =>
             setTimeout(
@@ -872,8 +1112,10 @@
     }
 
     if (
-      result?.status === "paid"
+      result?.status ===
+      "paid"
     ) {
+
       showPaidModal(
         orderNumber
       );
@@ -882,9 +1124,12 @@
     }
 
     if (
-      result?.status === "failed" ||
-      result?.status === "cancelled"
+      result?.status ===
+        "failed" ||
+      result?.status ===
+        "cancelled"
     ) {
+
       showFailedPaymentModal(
         orderNumber
       );
@@ -918,6 +1163,7 @@
       }
 
       if (!selected.length) {
+
         status.textContent =
           "السلة فارغة.";
 
@@ -958,9 +1204,11 @@
           .getElementById(
             "bioBookingCustomerType"
           )
-          ?.value || "saudi";
+          ?.value ||
+        "saudi";
 
       if (!branch) {
+
         status.textContent =
           "اختر الفرع.";
 
@@ -968,6 +1216,7 @@
       }
 
       if (!date) {
+
         status.textContent =
           "اختر تاريخ الزيارة.";
 
@@ -975,6 +1224,7 @@
       }
 
       if (!period) {
+
         status.textContent =
           "اختر الفترة المفضلة.";
 
@@ -982,57 +1232,71 @@
       }
 
       const cleanPhone =
-        phone.replace(/\D/g, "");
+        phone.replace(
+          /\D/g,
+          ""
+        );
 
       if (
         cleanPhone.length < 9 ||
         cleanPhone.length > 15
       ) {
+
         status.textContent =
           "أدخل رقم جوال صحيح.";
 
         return;
       }
 
-      button.disabled = true;
+      button.disabled =
+        true;
 
       status.textContent =
         "جارٍ إنشاء الحجز...";
 
       try {
+
         const client =
           await getLoggedInClient();
 
         const items =
-          selected.map(x => ({
-            type: x.type,
+          selected.map(
+            x => ({
+              type:
+                x.type,
 
-            id:
-              String(
-                x.id ||
-                x.code ||
-                ""
-              ),
+              id:
+                String(
+                  x.id ||
+                  x.code ||
+                  ""
+                ),
 
-            code:
-              String(
-                x.code ||
-                x.id ||
-                ""
-              ),
+              code:
+                String(
+                  x.code ||
+                  x.id ||
+                  ""
+                ),
 
-            name:
-              String(
-                x.name || ""
-              ),
+              name:
+                String(
+                  x.name ||
+                  ""
+                ),
 
-            price:
-              Number.isFinite(
-                Number(x.price)
-              )
-                ? Number(x.price)
-                : null
-          }));
+              price:
+                Number.isFinite(
+                  Number(
+                    x.price
+                  )
+                )
+                  ? Number(
+                      x.price
+                    )
+                  : null
+            })
+          );
 
         const {
           data: orderNumber,
@@ -1066,7 +1330,10 @@
         }
 
         const safeOrderNumber =
-          String(orderNumber || "");
+          String(
+            orderNumber ||
+            ""
+          );
 
         selected = [];
 
@@ -1094,7 +1361,9 @@
                 margin:14px 0
               "
             >
-              ${esc(safeOrderNumber)}
+              ${esc(
+                safeOrderNumber
+              )}
             </div>
 
             <p class="muted">
@@ -1106,24 +1375,15 @@
               في الخادم قبل فتح صفحة الدفع الآمنة.
             </p>
 
-            <button
-              id="bioPaymentButton"
-              class="primary"
-              type="button"
-              onclick="startBiocarePayment('${esc(safeOrderNumber)}')"
-            >
-              الدفع الآن بالبطاقة
-            </button>
-
-            <p
-              id="bioPaymentStatus"
-              role="status"
-              style="margin-top:12px"
-            ></p>
+            ${paymentOptionsHtml(
+              safeOrderNumber
+            )}
 
             <button
               type="button"
-              style="margin-top:10px"
+              style="
+                margin-top:10px
+              "
               onclick="closeModal();go('home')"
             >
               الدفع لاحقًا
@@ -1133,7 +1393,10 @@
         `);
 
       } catch (error) {
-        console.error(error);
+
+        console.error(
+          error
+        );
 
         const msg =
           String(
@@ -1145,6 +1408,7 @@
           /authentication|required|jwt|login/i
             .test(msg)
         ) {
+
           status.textContent =
             "انتهت جلسة الدخول. سجّل الدخول مرة أخرى.";
 
@@ -1152,6 +1416,7 @@
           /invalid branch/i
             .test(msg)
         ) {
+
           status.textContent =
             "الفرع المختار غير متاح.";
 
@@ -1159,6 +1424,7 @@
           /invalid booking date/i
             .test(msg)
         ) {
+
           status.textContent =
             "تاريخ الحجز غير صحيح.";
 
@@ -1166,25 +1432,33 @@
           /daily request limit/i
             .test(msg)
         ) {
+
           status.textContent =
             "تم الوصول للحد اليومي للطلبات. حاول لاحقًا.";
 
         } else {
+
           status.textContent =
             "تعذر إنشاء الحجز: " +
             msg;
         }
 
       } finally {
-        button.disabled = false;
+
+        button.disabled =
+          false;
       }
     };
 
   function attach() {
+
     if (
-      typeof window.booking !== "function" ||
-      typeof window.go !== "function"
+      typeof window.booking !==
+        "function" ||
+      typeof window.go !==
+        "function"
     ) {
+
       setTimeout(
         attach,
         150
@@ -1202,15 +1476,21 @@
     window.go =
       function (v) {
 
-        originalGo(v);
+        originalGo(
+          v
+        );
 
         if (
           v === "booking"
         ) {
+
           setTimeout(
             () => {
+
               biocareBookingUpdateTotal();
+
               biocareBookingDateChanged();
+
             },
             0
           );
@@ -1218,23 +1498,31 @@
       };
 
     try {
+
       if (
-        typeof view !== "undefined" &&
+        typeof view !==
+          "undefined" &&
         view === "booking"
       ) {
+
         render();
 
         biocareBookingUpdateTotal();
       }
+
     } catch (_) {}
 
     setTimeout(
       () => {
+
         checkPaymentReturn()
           .catch(
             error =>
-              console.error(error)
+              console.error(
+                error
+              )
           );
+
       },
       300
     );
