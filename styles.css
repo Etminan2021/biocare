@@ -15,11 +15,11 @@ button{cursor:pointer}
 .splash.hide{opacity:0;pointer-events:none}
 
 .app-header{height:84px;padding:calc(10px + env(safe-area-inset-top)) 18px 10px;display:grid;grid-template-columns:1fr minmax(180px,340px) 1fr;align-items:center;border-bottom:1px solid var(--line);background:#fff;position:sticky;top:0;z-index:40}
-.header-actions{display:flex;gap:9px;justify-self:start;direction:ltr}
+.header-actions{display:flex;gap:9px;justify-self:start;direction:ltr;position:absolute;left:18px;top:50%;transform:translateY(-50%)}
 .icon-btn,.menu-btn{border:0;background:transparent;font-size:26px;position:relative;color:var(--ink)}
 .dot{position:absolute;width:8px;height:8px;background:var(--red);border-radius:50%;right:4px;top:3px}
 .header-logo{max-width:100%;height:48px;object-fit:contain;justify-self:center}
-.menu-btn{justify-self:end;font-size:30px}
+.menu-btn{justify-self:end;font-size:30px;position:absolute;right:18px;top:50%;transform:translateY(-50%)}
 
 #app{max-width:900px;margin:auto;padding-bottom:14px}
 .hero{margin:14px 14px 0;border-radius:24px;background:linear-gradient(135deg,#eef7f3 0%,#fff 60%,#fff6f6 100%);overflow:hidden;min-height:250px;display:grid;grid-template-columns:1fr 1.18fr;align-items:stretch;position:relative;box-shadow:inset 0 0 0 1px #edf1ee}
