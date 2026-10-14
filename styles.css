@@ -245,6 +245,14 @@ body{background:#fff}
  .package-price{font-size:19px}.package-details-btn{font-size:11px}
 }
 
+/* Keep the mobile menu clear of the centered laboratory logo. */
+@media(max-width:620px){
+ .app-header{display:block}
+ .header-actions{position:absolute;left:18px;top:50%;transform:translateY(-50%);z-index:1}
+ .header-logo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(190px,calc(100vw - 170px));max-width:min(190px,calc(100vw - 170px));height:42px;object-fit:contain}
+ .menu-btn{position:absolute;right:18px;top:50%;transform:translateY(-50%);width:40px;height:42px;display:grid;place-items:center;z-index:1}
+}
+
 
 /* --- Biocare V8 floating instant chat --- */
 .instant-chat-btn{position:fixed;left:18px;bottom:calc(100px + env(safe-area-inset-bottom));z-index:115;border:0;background:#24553f;color:#fff;height:54px;min-width:54px;border-radius:999px;padding:0 15px;display:flex;align-items:center;gap:9px;box-shadow:0 10px 28px rgba(25,70,52,.28);font-family:inherit;font-weight:800;cursor:pointer}
