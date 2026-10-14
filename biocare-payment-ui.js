@@ -184,6 +184,10 @@
           font-weight:900;
         }
 
+        .bio-pay-check[hidden] {
+          display:none !important;
+        }
+
         .bio-pay-logo {
           min-height:52px;
           display:flex;
