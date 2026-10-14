@@ -398,14 +398,17 @@
         </button>
 
         <button
-          class="bio-pay-choice is-unavailable"
+          class="bio-pay-choice"
           type="button"
           data-method="tamara"
-          data-unavailable="true"
-          disabled
-          aria-disabled="true"
+          aria-pressed="false"
           aria-label="Tamara"
         >
+
+          <span
+            class="bio-pay-check"
+            hidden
+          >&#10003;</span>
 
           <div class="bio-pay-logo">
             <span
@@ -431,7 +434,7 @@
           <div class="bio-pay-label">
             Tamara
             <span class="bio-pay-badge">
-              &#1602;&#1585;&#1610;&#1576;&#1611;&#1575;
+              Sandbox
             </span>
           </div>
 
@@ -519,6 +522,15 @@
 
             await window
               .startBiocareTabbyTest(
+                orderNumber
+              );
+
+          } else if (
+            method === "tamara"
+          ) {
+
+            await window
+              .startBiocareTamara(
                 orderNumber
               );
 
