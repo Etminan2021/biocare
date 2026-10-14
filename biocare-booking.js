@@ -812,6 +812,32 @@
     return data || {};
   }
 
+  async function getTabbyPaymentStatus(orderNumber) {
+
+    const client =
+      await getLoggedInClient();
+
+    const {
+      data,
+      error
+    } =
+      await client.functions.invoke(
+        "tabby-payment-status",
+        {
+          body: {
+            order_number:
+              String(orderNumber)
+          }
+        }
+      );
+
+    if (error) {
+      throw error;
+    }
+
+    return data || {};
+  }
+
   function paymentOptionsHtml(
     orderNumber
   ) {
@@ -1359,66 +1385,57 @@
       "success"
     ) {
 
-      openModal(`
-        <h2>
-          تم الرجوع من تابي ✅
-        </h2>
-
-        <div class="card">
-
-          ${
-            orderNumber
-              ? `
-                <p>
-                  رقم الحجز:
-                </p>
-
-                <div
-                  style="
-                    font-size:20px;
-                    font-weight:800;
-                    direction:ltr;
-                    text-align:center;
-                    margin:12px 0;
-                  "
-                >
-                  ${esc(
-                    orderNumber
-                  )}
-                </div>
-              `
-              : ""
-          }
-
-          <p class="muted">
-            اكتملت تجربة مسار تابي التجريبي بنجاح.
-          </p>
-
-          <div
-            class="notice"
-            style="
-              margin-top:14px;
-            "
-          >
-            هذه بيئة Sandbox.
-            لم يتم تسجيل الحجز كمدفوع نهائيًا بعد.
-            سنربط خطوة التحقق والتأكيد النهائي من تابي بعد نجاح الاختبار.
+      if (!orderNumber) {
+        openModal(`
+          <h2>تعذر التحقق من الدفع</h2>
+          <div class="card">
+            <p class="muted">لم نعثر على رقم الحجز المطلوب للتحقق الآمن.</p>
+            <button class="primary" type="button" onclick="closeModal();go('home')">
+              العودة للرئيسية
+            </button>
           </div>
+        `);
+        return;
+      }
 
-          <button
-            class="primary"
-            type="button"
-            style="
-              margin-top:14px;
-            "
-            onclick="closeModal();go('home')"
-          >
-            العودة للرئيسية
-          </button>
-
+      openModal(`
+        <h2>جارٍ التحقق من حالة الدفع...</h2>
+        <div class="card">
+          <p class="muted">نتحقق مباشرة من تابي قبل تأكيد الحجز.</p>
         </div>
       `);
 
+      let result = null;
+      for (let attempt = 0; attempt < 8; attempt++) {
+        try {
+          result = await getTabbyPaymentStatus(orderNumber);
+        } catch (error) {
+          console.error("Tabby status check failed", error);
+        }
+
+        if (
+          result?.status === "paid" ||
+          result?.status === "failed"
+        ) {
+          break;
+        }
+
+        if (attempt < 7) {
+          await new Promise(resolve => setTimeout(resolve, 1500));
+        }
+      }
+
+      if (result?.status === "paid" && result?.verified === true) {
+        showPaidModal(orderNumber);
+        return;
+      }
+
+      if (result?.status === "failed") {
+        showFailedPaymentModal(orderNumber);
+        return;
+      }
+
+      showPendingPaymentModal(orderNumber);
       return;
     }
 
