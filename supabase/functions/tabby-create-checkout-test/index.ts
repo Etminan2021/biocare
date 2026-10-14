@@ -2,7 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 type JsonRecord = Record<string, unknown>;
-const ALLOWED_ORIGINS = new Set(["https://biocare-private-review.jocundtitan128.chatgpt.site", "https://biocaredx.com"]);
+const ALLOWED_ORIGINS = new Set(["https://biocare-private-review.jocundtitan128.chatgpt.site", "https://app.biocaredx.com"]);
 const CATALOG_URL = "https://raw.githubusercontent.com/Etminan2021/biocare/codex/secure-provider-status/catalog.js";
 const TABBY_API_BASE = "https://api.tabby.sa";
 const TABBY_MERCHANT_CODE = "EtminanMDLG_App";
