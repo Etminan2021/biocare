@@ -717,6 +717,7 @@
       <button
         id="bioApplePayButton"
         type="button"
+        dir="ltr"
         aria-label="الدفع باستخدام Apple Pay"
         onclick="startBiocarePayment('${esc(
           orderNumber
@@ -733,9 +734,24 @@
           font-size:24px;
           font-weight:600;
           cursor:pointer;
+          direction:ltr;
+          unicode-bidi:isolate;
+          font-family:
+            -apple-system,
+            BlinkMacSystemFont,
+            'SF Pro Display',
+            'Helvetica Neue',
+            Arial,
+            sans-serif;
         "
       >
-         Pay
+        <span
+          dir="ltr"
+          style="
+            direction:ltr;
+            unicode-bidi:isolate;
+          "
+        > Pay</span>
       </button>
 
       <div
