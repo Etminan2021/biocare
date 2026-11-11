@@ -45,6 +45,8 @@ details{border:1px solid var(--line);border-radius:13px;padding:11px;margin:8px 
 <input id="email" type="email" autocomplete="username" placeholder="البريد الإلكتروني">
 <input id="password" type="password" autocomplete="current-password" placeholder="كلمة المرور">
 <button id="loginBtn">تسجيل الدخول</button>
+<button id="forgotBtn" type="button" class="ghost">نسيت كلمة المرور؟</button>
+<div id="resetPanel" class="hidden"><label for="newPassword">كلمة المرور الجديدة</label><input id="newPassword" type="password" autocomplete="new-password" minlength="12" placeholder="12 حرفًا على الأقل"><button id="savePasswordBtn" type="button">حفظ كلمة المرور الجديدة</button></div>
 <p id="loginMsg" class="muted"></p>
 </section>
 
@@ -88,7 +90,7 @@ details{border:1px solid var(--line);border-radius:13px;padding:11px;margin:8px 
 </section>
 </main>
 <script src="catalog.js?v=9"></script>
-<script type="module" src="admin.js?v=6"></script>
+<script type="module" src="admin.js?v=7"></script>
  
 <script type="module" src="biocare-intro-admin.js?v=1"></script>
 
