@@ -15,10 +15,12 @@ const settingLabels={
 async function rpc(name,args={}){const{data,error}=await db.rpc(name,args);if(error)throw error;return data}
 function msg(t,error=false){$('loginMsg').textContent=t;$('loginMsg').style.color=error?'#a6282d':''}
 async function isAdmin(){try{return await rpc('care_is_admin')}catch{return false}}
+const allowedAdminTabs=new Set(['dashboard','orders','lis','users','staff','content','catalog','branches','virtual','notifications','services','appearance','introVideo','audit']);
+function requestedAdminTab(){const tab=new URLSearchParams(location.search).get('tab');return allowedAdminTabs.has(tab)?tab:'dashboard'}
 async function boot(){
  const{data:{user}}=await db.auth.getUser();me=user;
  if(!user||!(await isAdmin())){$('loginCard').classList.remove('hidden');$('adminApp').classList.add('hidden');if(user)msg('هذا الحساب ليس مديرًا معتمدًا.',true);return}
- $('loginCard').classList.add('hidden');$('adminApp').classList.remove('hidden');$('adminWho').textContent=user.email||'';showTab('dashboard')
+ $('loginCard').classList.add('hidden');$('adminApp').classList.remove('hidden');$('adminWho').textContent=user.email||'';showTab(requestedAdminTab())
 }
 $('loginBtn').onclick=async()=>{msg('جارٍ تسجيل الدخول...');const{error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error){msg('تعذر تسجيل الدخول. تحقق من البريد وكلمة المرور.',true);return}await boot()};
 $('forgotBtn').onclick=async()=>{
