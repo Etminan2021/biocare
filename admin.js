@@ -21,6 +21,29 @@ async function boot(){
  $('loginCard').classList.add('hidden');$('adminApp').classList.remove('hidden');$('adminWho').textContent=user.email||'';showTab('dashboard')
 }
 $('loginBtn').onclick=async()=>{msg('جارٍ تسجيل الدخول...');const{error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error){msg('تعذر تسجيل الدخول. تحقق من البريد وكلمة المرور.',true);return}await boot()};
+$('forgotBtn').onclick=async()=>{
+ const email=$('email').value.trim();
+ if(!email){msg('أدخل بريدك الإلكتروني أولاً.',true);return}
+ $('forgotBtn').disabled=true;
+ try{
+  const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+  if(error)throw error;
+  msg('إذا كان البريد مسجلاً، ستصلك رسالة لإعادة تعيين كلمة المرور. افحص البريد غير الهام أيضاً.');
+ }catch(e){msg('تعذر إرسال رابط الاستعادة. تحقق من تشغيل خدمة الحسابات وإعدادات البريد.',true)}
+ finally{$('forgotBtn').disabled=false}
+};
+db.auth.onAuthStateChange((event)=>{
+ if(event==='PASSWORD_RECOVERY'){$('loginCard').classList.remove('hidden');$('adminApp').classList.add('hidden');$('resetPanel').classList.remove('hidden');msg('أدخل كلمة مرور جديدة لحسابك.')}
+});
+$('savePasswordBtn').onclick=async()=>{
+ const password=$('newPassword').value;
+ if(password.length<12){msg('استخدم كلمة مرور لا تقل عن 12 حرفاً.',true);return}
+ $('savePasswordBtn').disabled=true;
+ try{const {error}=await db.auth.updateUser({password});if(error)throw error;
+ $('resetPanel').classList.add('hidden');$('newPassword').value='';msg('تم تحديث كلمة المرور. يمكنك تسجيل الدخول الآن.');await db.auth.signOut();
+ }catch(e){msg('تعذر تغيير كلمة المرور. افتح رابط الاستعادة الجديد وحاول مرة أخرى.',true)}
+ finally{$('savePasswordBtn').disabled=false}
+};
 $('logoutBtn').onclick=async()=>{await db.auth.signOut();location.reload()};
 $('tabs').onclick=e=>{const b=e.target.closest('button[data-tab]');if(b)showTab(b.dataset.tab)};
 $('mobileSection').onchange=e=>showTab(e.target.value);
