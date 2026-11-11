@@ -30,6 +30,7 @@ async function showTab(t){
  try{
   if(t==='dashboard')await dashboard();
   if(t==='orders')await orders();
+  if(t==='lis')await lisAccess();
   if(t==='users')await users();
   if(t==='staff')await staff();
   if(t==='content')await content();
@@ -59,6 +60,15 @@ async function dashboard(){
  <div class="card"><h3>Biocare Super Admin</h3><p class="muted">يمكنك من هذه اللوحة إدارة الوظائف الحالية للتطبيق: الطلبات والزيارات، الموظفين والعملاء، البانرات والإعلان المتحرك والفيديو، الفروع، الخدمات، العيادة الافتراضية، الإشعارات، التحاليل والباقات، الهوية والإعدادات وسجل تغييرات الإدارة.</p></div>`
 }
 window.refreshDashboard=dashboard;
+function lisAccess(){
+ const url='https://biocare-lis-staging.wild-butterfly-9d21.workers.dev';
+ panel.innerHTML=`<div class="card"><h2>نظام المختبر Biocare LIS</h2>
+ <p class="muted">رابط منفصل للنسخة التجريبية من نظام المختبر. يتطلب تسجيل دخول موظف مخوّل داخل LIS؛ تسجيل الدخول إلى لوحة التطبيق لا يمنح صلاحيات المختبر.</p>
+ <p class="notice">هذه وصلة انتقال فقط. لا تتم مزامنة الطلبات أو المرضى أو النتائج عبر هذا الرابط. لا تدخل بيانات مرضى حقيقيين في بيئة التجربة.</p>
+ <p><a class="secondary" style="display:inline-block;padding:12px;border-radius:11px;text-decoration:none;font-weight:800" href="${url}" target="_blank" rel="noopener noreferrer">فتح نظام المختبر التجريبي</a></p>
+ <p class="small">يجب إتمام التكامل عبر واجهة API مصادق عليها من الخادم قبل عرض بيانات المختبر داخل لوحة التطبيق.</p></div>`;
+}
+
 
 async function orders(){
  const [rows,staffRows]=await Promise.all([rpc('care_admin_orders'),rpc('care_admin_staff_list')]);staffCache=staffRows||[];
