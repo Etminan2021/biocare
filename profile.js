@@ -17,6 +17,8 @@
     const p = profileLoadedForId === authUser.id && profileData
       ? profileData
       : { full_name: '', phone: '' };
+    let favorites=[];
+    try{favorites=JSON.parse(localStorage.getItem('biocare_favorites')||'[]')}catch(_){favorites=[]}
 
     return `<section class="section"><div class="section-head"><h2 class="under">حسابي</h2></div>
       <div class="card">
@@ -35,6 +37,12 @@
         </form>
         <p id="profileMessage" role="status" style="margin-top:12px"></p>
         <p class="micro-note">يتم حفظ الاسم ورقم الجوال في حسابك فقط، وتمنع سياسات الأمان المستخدمين الآخرين من الوصول إليها.</p>
+        <div class="card" style="margin-top:12px">
+          <h3>بوابة المريض</h3>
+          <p class="muted">الوصول إلى التقارير الآمنة والمواعيد والطلبات المرتبطة بحسابك.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" type="button" onclick="go('results')">نتائجي وتقاريري</button><button class="secondary" type="button" onclick="biocareMyOrders()">طلباتي</button></div>
+        </div>
+        <div class="card" style="margin-top:12px"><h3>مفضلتي</h3><p class="muted">${favorites.length?`لديك ${favorites.length} تحليل أو باقة محفوظة.`:'لم تضف تحاليل أو باقات إلى المفضلة بعد.'}</p></div>
         <button class="secondary" onclick="logout()">تسجيل الخروج</button>
       </div>
     </section>`;
