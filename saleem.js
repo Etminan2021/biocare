@@ -215,7 +215,7 @@
         </div>
         <textarea class="saleem-textarea" id="saleemSymptoms" required maxlength="1200" placeholder="مثال: أشعر بتعب ودوخة وتساقط شعر منذ شهرين..."></textarea>
         <label class="saleem-check"><input type="checkbox" id="saleemPregnant"> <span>أنا حامل أو أكتب عن حالة حمل</span></label>
-        <div class="saleem-actions"><button class="primary" type="submit">حلّل الأعراض</button><button class="ghost" type="button" onclick="saleemClear()">مسح</button></div>
+        <div class="saleem-actions"><button class="primary" type="submit">حلّل الأعراض</button><button class="secondary" type="button" onclick="saleemStartVoice()">🎙️ تحدث مع سليم</button><button class="ghost" type="button" onclick="saleemClear()">مسح</button><button class="secondary" type="button" onclick="saleemOpenCart()">إكمال الطلب</button></div>
         <div class="saleem-note">🔒 في النسخة الحالية، ما تكتبه يُحلل داخل جهازك فقط ولا يتم حفظ نص الأعراض في قاعدة البيانات.</div>
       </form>
       <div class="saleem-disclaimer">سليم أداة مساعدة لا تقدّم تشخيصًا طبيًا ولا تستبدل الطبيب. عند وجود أعراض شديدة أو مفاجئة اطلب الرعاية الطبية المناسبة فورًا.</div>
@@ -276,6 +276,17 @@
     const t=document.getElementById('saleemSymptoms'); if(t)t.value='';
     const c=document.getElementById('saleemChat'); if(c)c.innerHTML='<div class="saleem-bubble bot">اكتب الأعراض من جديد وسأحاول ترتيب الخيارات المناسبة لك.</div>';
   };
+
+  window.saleemStartVoice=()=>{
+    const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!Recognition)return toast('التعرف الصوتي غير مدعوم في هذا المتصفح');
+    const recognition=new Recognition();recognition.lang='ar-SA';recognition.interimResults=false;recognition.maxAlternatives=1;
+    recognition.onresult=event=>{const input=document.getElementById('saleemSymptoms');if(input){input.value=event.results[0][0].transcript;input.focus()}toast('تم تحويل الصوت إلى نص')};
+    recognition.onerror=()=>toast('تعذر التقاط الصوت. تحقق من إذن الميكروفون');
+    recognition.start();
+  };
+
+  window.saleemOpenCart=()=>{closeModal();go('booking')};
 
   window.saleemAddTest=encoded=>{
     window.addTestByCode(encoded);

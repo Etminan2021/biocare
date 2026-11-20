@@ -1,4 +1,46 @@
 (function () {
+  const HOME_VISIT_MINIMUM = 200;
+  const FAVORITES_KEY = "biocare_favorites";
+
+  function favoriteIds() {
+    try { return JSON.parse(localStorage.getItem(FAVORITES_KEY) || "[]"); }
+    catch (_) { return []; }
+  }
+
+  function smartRecommendations() {
+    const ids = new Set(selected.map(x => String(x.id || x.code || "").toUpperCase()));
+    const wanted = [];
+    if ((ids.has("FBS") || ids.has("GLUCOSE")) && !ids.has("HBA1C")) wanted.push("HBA1C");
+    if (ids.has("VITD") && !ids.has("FERRITIN")) wanted.push("FERRITIN");
+    if (ids.has("TSH") && !ids.has("FT4")) wanted.push("FT4");
+    return wanted.map(code => TESTS.find(x => String(x.code).toUpperCase() === code)).filter(Boolean).slice(0, 3);
+  }
+
+  window.biocareToggleFavorite = function (type, id) {
+    const key = `${type}:${id}`;
+    const values = favoriteIds();
+    const next = values.includes(key) ? values.filter(x => x !== key) : [...values, key];
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(next));
+    toast(values.includes(key) ? "تمت الإزالة من المفضلة" : "أضيف إلى مفضلتي");
+    render();
+  };
+
+  window.biocareAddSmartOffer = function (code) {
+    addTestByCode(encodeURIComponent(code));
+    render();
+    setTimeout(biocareBookingUpdateTotal, 0);
+  };
+
+  window.biocareHomeVisitChanged = function () {
+    const enabled = document.getElementById("bioHomeVisit")?.checked;
+    const details = document.getElementById("bioHomeVisitDetails");
+    if (details) details.hidden = !enabled;
+    const total = selected.filter(x => Number.isFinite(Number(x.price))).reduce((sum, x) => sum + Number(x.price), 0);
+    const note = document.getElementById("bioHomeVisitMinimum");
+    if (note) note.textContent = enabled && total < HOME_VISIT_MINIMUM
+      ? `متبقي ${fmtPrice(HOME_VISIT_MINIMUM - total)} للوصول إلى الحد الأدنى للزيارة المنزلية.`
+      : enabled ? "تم بلوغ الحد الأدنى للزيارة المنزلية." : "";
+  };
   const branches = [
     ["jazan-airport", "جازان – طريق الأمير سلطان (المطار)"],
     ["abu-arish", "أبو عريش"],
@@ -80,12 +122,10 @@
 
                       </div>
 
-                      <button
-                        onclick="removeCart(${i})"
-                        class="remove-btn"
-                      >
-                        حذف
-                      </button>
+                      <div class="cart-row-actions">
+                        <button type="button" class="favorite-btn" onclick="biocareToggleFavorite('${x.type}','${esc(String(x.id || x.code || ""))}')" aria-label="إضافة للمفضلة">${favoriteIds().includes(`${x.type}:${x.id || x.code || ""}`) ? "★" : "☆"}</button>
+                        <button onclick="removeCart(${i})" class="remove-btn">حذف</button>
+                      </div>
 
                     </div>
                   `).join("")}
@@ -124,6 +164,13 @@
           <p class="micro-note">
             تضاف ضريبة القيمة المضافة للمقيمين.
           </p>
+
+          ${smartRecommendations().length ? `
+            <div class="smart-offers">
+              <h3>قد يفيدك أيضًا قبل الدفع</h3>
+              <p class="micro-note">اقتراحات اختيارية مبنية على محتويات السلة وليست تشخيصًا طبيًا.</p>
+              ${smartRecommendations().map(test => `<button class="smart-offer" type="button" onclick="biocareAddSmartOffer('${esc(test.code)}')"><span><strong>${esc(test.name)}</strong><small>${Number.isFinite(Number(test.price)) ? fmtPrice(test.price) : "السعر عند الطلب"}</small></span><b>+ إضافة</b></button>`).join("")}
+            </div>` : ""}
 
         </div>
 
@@ -260,6 +307,14 @@
                         </option>
 
                       </select>
+
+                      <label class="home-visit-toggle"><input id="bioHomeVisit" type="checkbox" onchange="biocareHomeVisitChanged()"> أريد سحب العينة من المنزل</label>
+                      <div id="bioHomeVisitDetails" class="home-visit-details" hidden>
+                        <div class="notice">الحد الأدنى للزيارة المنزلية ${fmtPrice(HOME_VISIT_MINIMUM)}.</div>
+                        <label for="bioHomeVisitAddress">العنوان التفصيلي</label>
+                        <textarea id="bioHomeVisitAddress" maxlength="500" placeholder="المدينة، الحي، الشارع، ورقم المبنى"></textarea>
+                        <p id="bioHomeVisitMinimum" class="micro-note"></p>
+                      </div>
 
                       <div
                         id="bioBookingTotal"
@@ -1540,6 +1595,20 @@
           )
           ?.value ||
         "saudi";
+
+      const homeVisit = !!document.getElementById("bioHomeVisit")?.checked;
+      const homeAddress = document.getElementById("bioHomeVisitAddress")?.value.trim() || "";
+      const knownTotal = selected.filter(x => Number.isFinite(Number(x.price))).reduce((sum, x) => sum + Number(x.price), 0);
+
+      if (homeVisit && knownTotal < HOME_VISIT_MINIMUM) {
+        status.textContent = `الحد الأدنى للزيارة المنزلية ${fmtPrice(HOME_VISIT_MINIMUM)}.`;
+        return;
+      }
+
+      if (homeVisit && homeAddress.length < 10) {
+        status.textContent = "أدخل عنوان الزيارة المنزلية بالتفصيل.";
+        return;
+      }
 
       if (!branch) {
 
