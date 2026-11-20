@@ -286,8 +286,13 @@ function booking(){
 }
 function results(){
  return `<section class="section"><div class="section-head"><h2 class="under">النتائج</h2></div>
- <div class="card"><h3>النتائج الإلكترونية</h3><p class="muted">سيتم تفعيل الدخول الآمن للنتائج بعد اكتمال الربط مع نظام المختبر. لا يتم عرض أي نتائج تجريبية في النسخة الحالية.</p></div></section>`;
+ <div class="card"><h3>بوابة النتائج الآمنة</h3><p class="muted">افتح رابط التقرير الآمن المرسل من المختبر. لا تظهر إلا النتائج النهائية والمدفوعة.</p>
+ <label for="secureReportUrl">رابط التقرير</label><input id="secureReportUrl" type="url" inputmode="url" placeholder="https://..." style="width:100%;box-sizing:border-box;padding:12px;margin:8px 0;border:1px solid var(--line);border-radius:12px" dir="ltr">
+ <button class="primary" type="button" onclick="openSecurePatientReport()">فتح التقرير</button>
+ ${authUser?'<button class="secondary" type="button" onclick="biocareMyOrders()" style="margin-top:8px">عرض طلباتي</button>':'<button class="secondary" type="button" onclick="openLogin()" style="margin-top:8px">تسجيل الدخول</button>'}
+ </div></section>`;
 }
+window.openSecurePatientReport=()=>{const value=document.getElementById('secureReportUrl')?.value.trim();if(!value)return toast('أدخل رابط التقرير');try{const url=new URL(value);const allowed=url.protocol==='https:'&&(/(^|\.)workers\.dev$/i.test(url.hostname)||/(^|\.)biocaredx\.com$/i.test(url.hostname));if(!allowed)throw Error('invalid');open(url.href,'_blank','noopener,noreferrer')}catch(_){toast('رابط التقرير غير صالح أو غير تابع لبيوكير')}};
 function profile(){
   if(!authUser) return `<section class="section"><div class="section-head"><h2 class="under">حسابي</h2></div><div class="card"><h3>حساب العميل</h3><p class="muted">سجّل الدخول بالبريد الإلكتروني للوصول إلى حسابك.</p><button class="primary" onclick="openLogin()">تسجيل الدخول / إنشاء حساب</button></div></section>`;
   return `<section class="section"><div class="section-head"><h2 class="under">حسابي</h2></div><div class="card"><h3>مرحبًا بك</h3><p class="muted">البريد الإلكتروني: ${esc(authUser.email||'')}</p><p class="micro-note">النتائج والمواعيد وأفراد العائلة غير متاحة حتى اكتمال الربط الآمن مع أنظمة المختبر.</p><button class="secondary" onclick="logout()">تسجيل الخروج</button></div></section>`;
@@ -302,6 +307,8 @@ function render(){
  if(view==='results') app.innerHTML=results();
  if(view==='profile') app.innerHTML=profile();
  updateCartCount();
+ const greeting=document.getElementById('headerGreeting');
+ if(greeting)greeting.textContent=authUser?'حياك الله':'حياك الله';
 }
 window.go=v=>{view=v;render();window.scrollTo({top:0,behavior:'smooth'})}
 window.addTestByCode=encoded=>{
@@ -361,12 +368,51 @@ async function initAuth(){
 }
 window.openLogin=()=>{
   closeDrawer();
-  openModal(`<h2>حساب العميل</h2><p class="muted">تسجيل الدخول أو إنشاء حساب مجاني بالبريد الإلكتروني.</p>
+  openModal(`<h2>حساب العميل</h2><p class="muted">اختر طريقة الدخول المناسبة لك.</p>
     <form id="authForm" onsubmit="submitLogin(event)">
       <label for="authEmail">البريد الإلكتروني</label><input id="authEmail" type="email" autocomplete="email" required placeholder="name@example.com" style="width:100%;padding:12px;margin:8px 0 14px">
       <label for="authPassword">كلمة المرور</label><input id="authPassword" type="password" autocomplete="current-password" minlength="8" required placeholder="8 أحرف على الأقل" style="width:100%;padding:12px;margin:8px 0 14px">
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" type="submit" id="authSignIn">تسجيل الدخول</button><button class="secondary" type="button" onclick="registerAccount()" id="authSignUp">إنشاء حساب</button></div>
-    </form><p id="authMessage" role="status" style="margin-top:14px"></p><p class="micro-note">قد يلزم تأكيد البريد الإلكتروني قبل أول تسجيل دخول. لا تدخل بيانات طبية في هذه الصفحة.</p>`);
+    </form>
+    <div class="auth-methods">
+      <button class="secondary" type="button" onclick="requestBiocareOtp('email')">رمز للبريد</button>
+      <button class="secondary" type="button" onclick="requestBiocareOtp('sms')">رمز للجوال</button>
+      <button class="secondary" type="button" onclick="startBiocareNafath()">الدخول عبر نفاذ</button>
+      <button class="ghost" type="button" onclick="continueAsGuest()">الدخول كزائر</button>
+    </div>
+    <div id="authOtpPanel" class="otp-panel" hidden></div>
+    <p id="authMessage" role="status" style="margin-top:14px"></p><p class="micro-note">قد يلزم تأكيد البريد الإلكتروني قبل أول تسجيل دخول. لا تدخل بيانات طبية في هذه الصفحة.</p>`);
+};
+
+window.requestBiocareOtp=async(channel)=>{
+  const destination=channel==='email'
+    ? document.getElementById('authEmail')?.value.trim()
+    : prompt('أدخل رقم الجوال بصيغة دولية، مثال: +9665XXXXXXXX');
+  if(!destination)return authMessage(channel==='email'?'أدخل البريد الإلكتروني أولًا.':'أدخل رقم الجوال.',true);
+  authMessage('جارٍ إرسال رمز الدخول...');
+  try{
+    const client=await initAuth();
+    const args=channel==='email'
+      ? {email:destination,options:{emailRedirectTo:location.origin+location.pathname}}
+      : {phone:destination};
+    const {error}=await client.auth.signInWithOtp(args);if(error)throw error;
+    const panel=document.getElementById('authOtpPanel');
+    if(panel){panel.hidden=false;panel.innerHTML=`<b>تم إرسال الرمز</b><input id="authOtpCode" inputmode="numeric" maxlength="8" placeholder="رمز التحقق"><button class="primary" type="button" onclick="verifyBiocareOtp('${channel}','${esc(destination)}')">تحقق ودخول</button>`}
+    authMessage('أدخل رمز التحقق المرسل إليك.');
+  }catch(error){authMessage(authErrorMessage(error),true)}
+};
+
+window.verifyBiocareOtp=async(channel,destination)=>{
+  const token=document.getElementById('authOtpCode')?.value.trim();if(!token)return authMessage('أدخل رمز التحقق.',true);
+  try{const client=await initAuth();const payload=channel==='email'?{email:destination,token,type:'email'}:{phone:destination,token,type:'sms'};const {data,error}=await client.auth.verifyOtp(payload);if(error)throw error;authUser=data.user;closeModal();go('profile');toast('تم تسجيل الدخول بنجاح')}catch(error){authMessage(authErrorMessage(error),true)}
+};
+
+window.continueAsGuest=()=>{sessionStorage.setItem('biocare_guest','1');closeModal();go('home');toast('يمكنك التصفح كزائر، ويلزم تسجيل الدخول عند الحجز أو عرض النتائج')};
+
+window.startBiocareNafath=async()=>{
+  const base=String(window.BIOCARE_LIS_API_BASE||'').replace(/\/$/,'');
+  if(!base)return authMessage('الدخول عبر نفاذ جاهز للربط، ويلزم ضبط رابط خدمة LIS ومفاتيح نفاذ.',true);
+  try{const response=await fetch(`${base}/api/v1/patient/auth/nafath/start`,{method:'POST',headers:{'content-type':'application/json'},body:'{}'});const data=await response.json();if(!response.ok||!data.authorizationUrl)throw Error(data.error||'nafath_unavailable');location.href=data.authorizationUrl}catch(error){authMessage('تعذر بدء نفاذ. تحقق من إعدادات الربط.',true)}
 };
 window.submitLogin=async(event)=>{
   event?.preventDefault();
