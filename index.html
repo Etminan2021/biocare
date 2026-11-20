@@ -18,7 +18,7 @@
   content="مختبرات بيوكير الطبية - التحاليل والباقات والحجز والنتائج والاستشارات"
 >
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=10">
 <link rel="stylesheet" href="biocare-intro.css?v=1">
 
 <title>مختبرات بيوكير الطبية | Biocare</title>
@@ -36,6 +36,17 @@
 <header class="app-header">
 
   <div class="header-actions">
+
+    <button
+      class="header-account-btn"
+      id="headerAccountBtn"
+      type="button"
+      aria-label="حسابي"
+      onclick="go('profile')"
+    >
+      <span class="header-account-icon" aria-hidden="true">👤</span>
+      <span id="headerGreeting">حياك الله</span>
+    </button>
 
     <button
       class="icon-btn"
@@ -314,7 +325,7 @@ window.BIOCARE_CATALOG_READY.then(() => {
     document.createElement("script");
 
   s.src =
-    "app.js?v=9";
+      "app.js?v=10";
 
   s.onload = () => {
 
@@ -332,7 +343,7 @@ window.BIOCARE_CATALOG_READY.then(() => {
       document.createElement("script");
 
     p.src =
-      "profile.js?v=2";
+      "profile.js?v=3";
 
     p.onload = () => {
 
@@ -340,7 +351,7 @@ window.BIOCARE_CATALOG_READY.then(() => {
         document.createElement("script");
 
       a.src =
-        "saleem.js?v=1";
+        "saleem.js?v=2";
 
       a.onload = () => {
 
@@ -461,7 +472,7 @@ if (
 
 <script src="biocare-intro.js?v=1"></script>
 
-<script src="biocare-booking.js?v=7"></script>
+<script src="biocare-booking.js?v=8"></script>
 <script src="biocare-payment-ui.js?v=2"></script>
 
 </body>
