@@ -8,12 +8,19 @@
   }
 
   function smartRecommendations() {
-    const ids = new Set(selected.map(x => String(x.id || x.code || "").toUpperCase()));
+    const selectedText = selected.map(x => [x.id, x.code, x.name, x.en].filter(Boolean).join(" ")).join(" | ");
+    const hasSelected = pattern => pattern.test(selectedText);
     const wanted = [];
-    if ((ids.has("FBS") || ids.has("GLUCOSE")) && !ids.has("HBA1C")) wanted.push("HBA1C");
-    if (ids.has("VITD") && !ids.has("FERRITIN")) wanted.push("FERRITIN");
-    if (ids.has("TSH") && !ids.has("FT4")) wanted.push("FT4");
-    return wanted.map(code => TESTS.find(x => String(x.code).toUpperCase() === code)).filter(Boolean).slice(0, 3);
+    if (hasSelected(/\bFBS\b|FASTING.*GLUCOSE|GLUCOSE.*FASTING/i) && !hasSelected(/HBA1C|GLYCATED HEMOGLOBIN|السكر التراكمي/i)) {
+      wanted.push(/HBA1C|GLYCATED HEMOGLOBIN|السكر التراكمي/i);
+    }
+    if (hasSelected(/\bVITD\b|VITAMIN D|فيتامين د/i) && !hasSelected(/FERRITIN|مخزون الحديد/i)) {
+      wanted.push(/FERRITIN|مخزون الحديد/i);
+    }
+    if (hasSelected(/\bTSH\b|THYROID STIMULATING HORMONE|الهرمون المحفز للغدة الدرقية/i) && !hasSelected(/\bFT4\b|FREE T4/i)) {
+      wanted.push(/\bFT4\b|FREE T4/i);
+    }
+    return wanted.map(pattern => TESTS.find(x => pattern.test([x.code, x.name, x.en].filter(Boolean).join(" ")))).filter(Boolean).slice(0, 3);
   }
 
   window.biocareToggleFavorite = function (type, id) {
