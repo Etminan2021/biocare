@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تقرير تكامل بيوكير التجريبي</title>
+<style>
+@page{size:A4;margin:12mm}
+*{box-sizing:border-box}body{margin:0;background:#eef4f1;color:#102d27;font-family:Tahoma,Arial,sans-serif}
+.sheet{position:relative;max-width:210mm;min-height:273mm;margin:20px auto;background:#fff;padding:18mm 16mm;box-shadow:0 8px 30px #0002;overflow:hidden}
+.watermark{position:absolute;inset:42% -15%;transform:rotate(-24deg);font-size:46px;font-weight:800;color:#c6282830;text-align:center;letter-spacing:3px;pointer-events:none}
+header{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #3f876f;padding-bottom:14px}
+.brand{font-size:27px;font-weight:800}.tag{color:#b3261e;border:2px solid #b3261e;padding:7px 12px;border-radius:8px;font-weight:700}
+h1{font-size:25px;margin:28px 0 18px}.meta{display:grid;grid-template-columns:1fr 1fr;gap:10px 28px;background:#f2f8f5;padding:16px;border-radius:12px}
+.meta div{display:flex;justify-content:space-between;border-bottom:1px solid #cfe0da;padding:7px 0}.meta b{color:#47645c}
+table{width:100%;border-collapse:collapse;margin-top:28px}th,td{border:1px solid #c9d8d3;padding:13px;text-align:center}th{background:#3f876f;color:#fff}tr:nth-child(even){background:#f7faf9}
+.ok{color:#16784b;font-weight:800}.note{margin-top:28px;padding:16px;border:2px solid #b3261e;background:#fff4f2;color:#7c211b;border-radius:12px;font-weight:700}
+footer{margin-top:42px;padding-top:14px;border-top:1px solid #c9d8d3;color:#667c75;font-size:13px;text-align:center}
+.actions{text-align:center;margin:18px}.actions button{background:#3f876f;color:#fff;border:0;border-radius:10px;padding:12px 28px;font-size:18px}
+@media print{body{background:#fff}.sheet{margin:0;box-shadow:none;min-height:auto}.actions{display:none}header,.meta,table,.note,footer{break-inside:avoid}.sheet{page-break-after:avoid}}
+@media(max-width:720px){.sheet{margin:0;min-height:100vh;padding:28px 18px}.meta{grid-template-columns:1fr}header{align-items:flex-start;gap:12px}.brand{font-size:22px}}
+</style>
+</head>
+<body>
+<main class="sheet">
+<div class="watermark">اختبار فقط — لا يستخدم طبيًا</div>
+<header><div><div class="brand">مختبرات بيوكير الطبية</div><small>Biocare Medical Laboratories</small></div><div class="tag">تقرير تجريبي</div></header>
+<h1>اختبار تكامل التقرير الذكي</h1>
+<section class="meta">
+<div><b>رقم الطلب</b><span>BIO-E2E-20261121043122</span></div>
+<div><b>المريض</b><span>حساب اختبار المدير</span></div>
+<div><b>الفرع</b><span>جازان — المطار</span></div>
+<div><b>حالة التقرير</b><span class="ok">منشور تجريبيًا</span></div>
+</section>
+<table>
+<thead><tr><th>رمز الفحص</th><th>اسم الفحص</th><th>النتيجة</th><th>المدى المرجعي</th><th>الحالة</th></tr></thead>
+<tbody><tr><td>E2E-CBC</td><td>فحص تجريبي للتكامل</td><td>5.0</td><td>4.0 – 10.0</td><td class="ok">ضمن المدى</td></tr></tbody>
+</table>
+<div class="note">هذه بيانات اصطناعية لا تمثل فحصًا أو مريضًا حقيقيًا، ولا يجوز استخدامها للتشخيص أو اتخاذ أي قرار طبي.</div>
+<footer>تم إنشاء هذا المستند حصريًا للتحقق من انتقال الطلب والنتيجة بين تطبيق بيوكير ونظام LIS.</footer>
+</main>
+<div class="actions"><button onclick="window.print()">طباعة التقرير التجريبي</button></div>
+</body></html>
