@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
 <title>TikTok Authorization | Biocare</title>
 <style>
 body{font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:#f5f8f6;color:#163c2e;margin:0;display:grid;place-items:center;min-height:100vh}
@@ -14,8 +15,19 @@ h1{margin-top:0}p{color:#5b6f66;line-height:1.7}
 <body>
 <div class="card">
 <h1>TikTok Authorization</h1>
-<p>This secure callback page is reserved for Biocare Medical Laboratories' TikTok API authorization flow.</p>
-<p>Authorization results will be processed by the Biocare CRM integration.</p>
+<p id="status">Securely completing the Biocare TikTok authorization…</p>
+<p>Please keep this page open until the process finishes.</p>
 </div>
+<script>
+(function(){
+  var qs=location.search||'';
+  var target='https://biocare-lis-staging.wild-butterfly-9d21.workers.dev/api/v1/integrations/tiktok/accounts/oauth/callback'+qs;
+  if(!qs){
+    document.getElementById('status').textContent='No TikTok authorization response was received.';
+    return;
+  }
+  location.replace(target);
+})();
+</script>
 </body>
 </html>
